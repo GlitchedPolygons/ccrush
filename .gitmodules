@@ -1,0 +1,3 @@
+[submodule "lib/chillbuff"]
+	path = lib/chillbuff
+	url = https://github.com/GlitchedPolygons/chillbuff.git
