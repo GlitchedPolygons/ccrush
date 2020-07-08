@@ -1,3 +1,6 @@
 [submodule "lib/chillbuff"]
 	path = lib/chillbuff
 	url = https://github.com/GlitchedPolygons/chillbuff.git
+[submodule "lib/cmocka"]
+	path = lib/cmocka
+	url = https://gitlab.com/cmocka/cmocka
