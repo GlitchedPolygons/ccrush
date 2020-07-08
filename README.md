@@ -1,5 +1,5 @@
 # CCRUSH
-### _Say "C-Crush", "Sick rush", "Seek rush", or whatever you feel sounds best_
+### _Say "C-Crush", "Sick rush", "Seek rush", "CRUSH!!!", or whatever you feel sounds best_
 
 ---
 
