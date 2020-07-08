@@ -10,7 +10,9 @@ add_library(${PROJECT_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/include/ccrush.h
         )
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/chillbuff chillbuff)
+if (NOT TARGET chillbuff)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/chillbuff chillbuff)
+endif ()
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
