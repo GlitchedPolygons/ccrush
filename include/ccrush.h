@@ -57,12 +57,17 @@ extern "C" {
 /**
  * Error code for <c>NULL</c>, invalid, out-of-range or simply just wrong arguments.
  */
-#define CCRUSH_ERROR_INVALID_ARGS -1
+#define CCRUSH_ERROR_INVALID_ARGS 1000
+
+/**
+ * Error code for exaggerated buffer size arguments...
+ */
+#define CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE 1001
 
 /**
  * Error code for OOM scenarios. Uh oh...
  */
-#define CCRUSH_ERROR_OUT_OF_MEMORY 1000
+#define CCRUSH_ERROR_OUT_OF_MEMORY 2000
 
 /**
  * Pick the lower of two numbers.
@@ -84,7 +89,7 @@ extern "C" {
  * @param out_length Where to write the output array's length into.
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
-int ccrush_compress(const uint8_t* data, const size_t data_length, const size_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length);
+int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, int level, uint8_t** out, size_t* out_length);
 
 /**
  * Decompresses a given set of deflated data using inflate.
@@ -95,7 +100,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const size_t 
  * @param out_length Where to write the output array's length into.
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
-int ccrush_decompress(const uint8_t* data, const size_t data_length, const size_t buffer_size_kib, uint8_t** out, size_t* out_length);
+int ccrush_decompress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, uint8_t** out, size_t* out_length);
 
 /**
  * Calculates a number's next upper power of 2. <p>

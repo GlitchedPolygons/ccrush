@@ -30,18 +30,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ccrush.h"
 
-int ccrush_compress(const uint8_t* data, const size_t data_length, const size_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length)
+int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length)
 {
     if (data == NULL || data_length == 0 || out == NULL || out_length == NULL)
     {
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    const size_t buffer_size_b = buffer_size_kib * 1024;
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
 
     if (buffer_size_b >= UINT32_MAX)
     {
-        return CCRUSH_ERROR_INVALID_ARGS;
+        return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
 
     int r = -1;
@@ -159,14 +159,14 @@ exit:
     return (r);
 }
 
-int ccrush_decompress(const uint8_t* data, const size_t data_length, const size_t buffer_size_kib, uint8_t** out, size_t* out_length)
+int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint32_t buffer_size_kib, uint8_t** out, size_t* out_length)
 {
     if (data == NULL || data_length == 0 || out == NULL || out_length == NULL)
     {
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    const size_t buffer_size_b = buffer_size_kib * 1024;
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
 
     if (buffer_size_b >= UINT32_MAX)
     {
