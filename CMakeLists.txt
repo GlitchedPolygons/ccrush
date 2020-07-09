@@ -32,29 +32,19 @@ get_target_property(${PROJECT_NAME}_DEPS_TARGETS ${PROJECT_NAME} LINK_LIBRARIES)
 
 if (CCRUSH_ENABLE_TESTS)
 
-    find_package(cmocka)
-
-    if (NOT ${cmocka_FOUND})
-        message(STATUS "cmocka not found; using included version inside lib/cmocka/ folder...")
-        add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/cmocka cmocka)
-    else ()
-        message(STATUS "Found cmocka!")
-    endif ()
-
     add_executable(run_tests
             ${CMAKE_CURRENT_LIST_DIR}/tests/tests.c
             ${${PROJECT_NAME}_SRC_FILES}
             )
 
     target_include_directories(run_tests
-            PUBLIC ${cmocka_INCLUDE_DIR}
             PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
+            PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/acutest/include
             PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/miniz
             )
 
     target_link_libraries(run_tests
             PUBLIC ${${PROJECT_NAME}_DEPS_TARGETS}
-            PUBLIC cmocka
             )
 
     if (ENABLE_COVERAGE)

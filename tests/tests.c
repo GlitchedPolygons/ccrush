@@ -36,21 +36,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdbool.h>
 
-#include <cmocka.h>
+#include <acutest.h>
 
 /* A test case that does nothing and succeeds. */
-static void null_test_success(void** state)
+void null_test_success(void)
 {
-    (void)state;
+    TEST_CHECK(1);
 }
 
 // --------------------------------------------------------------------------------------------------------------
 
-int main(void)
-{
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(null_test_success),
-    };
-
-    return cmocka_run_group_tests(tests, NULL, NULL);
-}
+TEST_LIST = {
+    { "nulltest", null_test_success },
+    { NULL, NULL }
+};

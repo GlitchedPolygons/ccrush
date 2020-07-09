@@ -84,7 +84,7 @@ extern "C" {
  * @param out_length Where to write the output array's length into.
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
-int ccrush_compress(const uint8_t* data, size_t data_length, size_t buffer_size_kib, int level, uint8_t** out, size_t* out_length);
+int ccrush_compress(const uint8_t* data, const size_t data_length, const size_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length);
 
 /**
  * Decompresses a given set of deflated data using inflate.
@@ -95,7 +95,7 @@ int ccrush_compress(const uint8_t* data, size_t data_length, size_t buffer_size_
  * @param out_length Where to write the output array's length into.
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
-int ccrush_decompress(const uint8_t* data, size_t data_length, size_t buffer_size_kib, uint8_t** out, size_t* out_length);
+int ccrush_decompress(const uint8_t* data, const size_t data_length, const size_t buffer_size_kib, uint8_t** out, size_t* out_length);
 
 /**
  * Calculates a number's next upper power of 2. <p>

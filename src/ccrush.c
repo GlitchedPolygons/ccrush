@@ -50,7 +50,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const size_t 
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
-    const size_t buffersize = buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE;
+    const uint32_t buffersize = buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE;
     uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 
@@ -179,7 +179,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const size_
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
-    const size_t buffersize = buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE;
+    const uint32_t buffersize = buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE;
     uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 
