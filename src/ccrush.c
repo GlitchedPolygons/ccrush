@@ -170,7 +170,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
 
     if (buffer_size_b >= UINT32_MAX)
     {
-        return CCRUSH_ERROR_INVALID_ARGS;
+        return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
 
     int r = -1;

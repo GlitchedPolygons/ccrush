@@ -36,17 +36,64 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdbool.h>
 
+#include <ccrush.h>
 #include <acutest.h>
 
 /* A test case that does nothing and succeeds. */
-void null_test_success(void)
+static void null_test_success()
 {
     TEST_CHECK(1);
+}
+
+static void ccrush_compress_invalid_args()
+{
+    uint8_t* out;
+    size_t out_length;
+
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress(NULL, 256, 256, 8, &out, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 0, 256, 8, &out, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 256, 8, NULL, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 256, 8, &out, NULL));
+}
+
+static void ccrush_compress_buffersize_too_large()
+{
+    uint8_t* out;
+    size_t out_length;
+
+    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 1024 * 1024 * 1024, 8, &out, &out_length));
+}
+
+static void ccrush_decompress_invalid_args()
+{
+    uint8_t* out;
+    size_t out_length;
+
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_decompress(NULL, 23 + 1, 256, &out, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 0, 256, &out, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 23 + 1, 256, NULL, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 23 + 1, 256, &out, NULL));
+}
+
+static void ccrush_decompress_buffersize_too_large()
+{
+    uint8_t* out;
+    size_t out_length;
+
+    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 23 + 1, 1024 * 1024 * 1024, &out, &out_length));
 }
 
 // --------------------------------------------------------------------------------------------------------------
 
 TEST_LIST = {
-    { "nulltest", null_test_success },
-    { NULL, NULL }
+    //
+    { "nulltest", null_test_success }, //
+    { "ccrush_compress_invalid_args", ccrush_compress_invalid_args }, //
+    { "ccrush_compress_buffersize_too_large", ccrush_compress_buffersize_too_large }, //
+    { "ccrush_decompress_invalid_args", ccrush_decompress_invalid_args }, //
+    { "ccrush_decompress_buffersize_too_large", ccrush_decompress_buffersize_too_large }, //
+    //
+    // ----------------------------------------------------------------------------------------------------------
+    //
+    { NULL, NULL } //
 };
