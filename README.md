@@ -13,6 +13,9 @@ This is what you want to use if you _just want to compress some stuff in C_.
 Hence, C-Crush. You're crushing data with C. Especially if you're in a _rush_, 
 when you just want to call 1 function and (de)compress stuff.
 
+It's a wrapper around [@richgel999](https://github.com/richgel999)'s [miniz](https://github.com/richgel999/miniz) library, which implements the [DEFLATE](https://en.m.wikipedia.org/wiki/DEFLATE)
+algorithm as defined in the [RFC1951](https://tools.ietf.org/html/rfc1951) standard. Refactoring this to use/link against [zlib](https://en.m.wikipedia.org/wiki/Zlib) instead is definitively possible, but not required.
+
 ### How to clone
 `git clone --recursive https://github.com/GlitchedPolygons/ccrush.git`
 
