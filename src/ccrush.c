@@ -241,7 +241,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         }
     }
 
-    *out = malloc(output_buffer.length);
+    *out = malloc(output_buffer.length + 1);
     if (*out == NULL)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
@@ -250,6 +250,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
 
     r = 0;
     *out_length = output_buffer.length;
+    (*out)[output_buffer.length] = '\0';
     memcpy(*out, output_buffer.array, output_buffer.length);
 
 exit:
