@@ -32,4 +32,38 @@ If you use [CMake](https://cmake.org) you can just `add_subdirectory(path_to_sub
 
 ### Examples
 
-// TODO
+#### Compressing
+
+```c
+const uint8_t* data = "Your special string or byte array to compress here!";
+const size_t data_length = strlen(data);
+
+uint8_t* compressed_data = NULL;
+size_t compressed_data_length = 0;
+
+int r = ccrush_compress(data, data_length, 64, 8, &compressed_data, &compressed_data_length);
+if (r != 0)
+{
+    fprintf(stderr, "Compression failed! \"ccrush_compress\" returned: %d", r);
+}
+
+free(compressed_data);
+```
+
+#### Decompressing
+
+```c
+const uint8_t* compressed_data = "{{ These should be your compressed bytes written by the ccrush_compress function }}";
+const size_t compressed_data_length = 256; // This should be the exact length of the compressed data array as written by the ccrush_compress function! 
+
+uint8_t* data = NULL;
+size_t data_length = 0;
+
+int r = ccrush_decompress(compressed_data, compressed_data_length, 64, &data, &data_length);
+if (r != 0)
+{
+    fprintf(stderr, "Decompression failed! \"ccrush_decompress\" returned: %d", r);
+}
+
+free(data);
+```
