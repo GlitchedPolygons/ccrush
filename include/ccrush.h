@@ -42,6 +42,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stddef.h>
 
 /**
  * Default chunksize to use for compression/decompression buffers.
