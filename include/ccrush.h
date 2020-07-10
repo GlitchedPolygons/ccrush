@@ -41,13 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-#include <ctype.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <miniz.h>
-#include <chillbuff.h>
 
 /**
  * Default chunksize to use for compression/decompression buffers.
