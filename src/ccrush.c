@@ -92,7 +92,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     {
         if (stream.avail_in == 0)
         {
-            const uint32_t n = CCRUSH_MIN(buffersize, remaining);
+            const uint32_t n = (uint32_t)(CCRUSH_MIN((size_t)buffersize, remaining));
 
             memcpy(zinbuf, data + stream.total_in, n);
 
@@ -215,7 +215,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
     {
         if (stream.avail_in == 0)
         {
-            const uint32_t n = (uint32_t)(CCRUSH_MIN(buffersize, remaining));
+            const uint32_t n = (uint32_t)(CCRUSH_MIN((size_t)buffersize, remaining));
 
             memcpy(zinbuf, data + stream.total_in, n);
             stream.next_in = zinbuf;
