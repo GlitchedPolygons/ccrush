@@ -28,13 +28,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <stdio.h>
 #include <setjmp.h>
-#include <stdarg.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include <ccrush.h>
 #include <acutest.h>
@@ -85,9 +82,9 @@ static void ccrush_decompress_buffersize_too_large()
 
 static void ccrush_compress_string_result_is_smaller_and_decompression_succeeds()
 {
-    const char* text = "The nuclear weapons disposal facility on Shadow Moses Island in Alaska's Fox Archepeligo was attacked and captured by Next Generation Special Forces being lead by members of FOX-HOUND.\n"
+    const char* text = "The nuclear weapons disposal facility on Shadow Moses Island in Alaska's Fox Archipelago was attacked and captured by Next Generation Special Forces being lead by members of FOX-HOUND.\n"
                        "They're demanding that the government turn over the remains of Big Boss, and they say that if their demands aren't met within 24 hours, they'll launch a nuclear weapon.\n"
-                       "You'll have two mission objectives. First you're to rescue DARPA Chief Donald Anderson, and the President of Armstech, Kennith Baker. Both are being held as hostages.\n"
+                       "You'll have two mission objectives. First: you're to rescue DARPA Chief Donald Anderson, and the President of Armstech, Kenneth Baker. Both are being held as hostages.\n"
                        "Secondly, you're to investigate whether or not the terrorists have the ability to make a nuclear strike, and stop them if they do!";
 
     const size_t text_length = strlen(text);
