@@ -60,15 +60,16 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 
-    const size_t compressed_size = mz_compressBound(data_length);
-    uint8_t* compressed = malloc(compressed_size);
-    if (compressed == NULL || zinbuf == NULL || zoutbuf == NULL)
+    chillbuff output_buffer;
+    r = chillbuff_init(&output_buffer, nextpow2(CCRUSH_MAX(mz_compressBound((uint64_t)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
+
+    if (r != 0 || zinbuf == NULL || zoutbuf == NULL)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
         goto exit;
     }
 
-    if ((data_length | compressed_size) > 0xFFFFFFFFU)
+    if ((data_length | output_buffer.capacity) > 0xFFFFFFFFU)
     {
         r = MZ_PARAM_ERROR;
         goto exit;
@@ -85,7 +86,6 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     stream.next_out = zoutbuf;
     stream.avail_out = buffersize;
 
-    uint8_t* o = compressed;
     size_t remaining = data_length;
 
     for (;;)
@@ -108,8 +108,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         {
             const uint32_t n = buffersize - stream.avail_out;
 
-            memcpy(o, zoutbuf, n);
-            o += n;
+            chillbuff_push_back(&output_buffer, zoutbuf, n);
 
             stream.next_out = zoutbuf;
             stream.avail_out = buffersize;
@@ -126,7 +125,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         }
     }
 
-    *out = malloc(stream.total_out);
+    *out = malloc(output_buffer.length + 1);
     if (*out == NULL)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
@@ -134,12 +133,11 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     }
 
     r = 0;
-    *out_length = stream.total_out;
-    memcpy(*out, compressed, stream.total_out);
+    *out_length = output_buffer.length;
+    memcpy(*out, output_buffer.array, output_buffer.length);
+    (*out)[output_buffer.length] = 0x00;
 
 exit:
-
-    o = NULL;
 
     mz_deflateEnd(&stream);
     memset(&stream, 0x00, sizeof(stream));
@@ -156,11 +154,7 @@ exit:
         free(zoutbuf);
     }
 
-    if (compressed != NULL)
-    {
-        memset(compressed, 0x00, compressed_size);
-        free(compressed);
-    }
+    chillbuff_free(&output_buffer);
 
     return (r);
 }
