@@ -52,7 +52,10 @@ cd static || exit
 cmake -DBUILD_SHARED_LIBS=Off -DCCRUSH_BUILD_DLL=Off -DCCRUSH_ENABLE_TESTS=Off -DCMAKE_BUILD_TYPE=Release ../.. || exit
 cmake --build . --config Release || exit
 cd .. || exit
-tar -czvf ccrush.tar.gz $(find . -type f -iname "*.h" -o -iname "*.dll" -o -iname "*.lib" -o -iname "*.dylib" -o -iname "*.dylib*" -o -iname "*.so" -o -iname "*.so*" -o -iname "*.a")
+VER=$(grep VERSION_STR include/*.h | sed -e "s/^#define CCRUSH_VERSION_STR\ \"//" -e "s/\"$//" | tr -d '\n' | tr -d '\r\n')
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+CPU=$(uname -m)
+tar -czvf "ccrush-${VER}-${OS}-${CPU}.tar.gz" $(find . -type f -iname "*.h" -o -iname "*.dll" -o -iname "*.lib" -o -iname "*.dylib" -o -iname "*.dylib*" -o -iname "*.so" -o -iname "*.so*" -o -iname "*.a" | sed "s|^\./||" | sed -e "s/^\\.//")
 cd "$REPO" || exit
 export CC="$PREVCC"
 echo "  Done. Exported build into $REPO/build"
