@@ -32,6 +32,6 @@ if [ "$1" = "cov" ]; then cov=On; fi
 rm -rf "$REPO"/build
 mkdir -p "$REPO"/build && cd "$REPO"/build || exit
 cmake -DBUILD_SHARED_LIBS=Off -DCCRUSH_ENABLE_TESTS=On -DENABLE_COVERAGE="${cov}" ..
-cmake --build . --config Release || exit
-./run_tests || ./Release/run_tests.exe || exit
+cmake --build . --config Debug || exit
+./run_tests || ./Debug/run_tests.exe || exit
 cd "$REPO" || exit
