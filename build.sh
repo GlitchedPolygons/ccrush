@@ -55,7 +55,7 @@ cd .. || exit
 VER=$(grep VERSION_STR include/*.h | sed -e "s/^#define CCRUSH_VERSION_STR\ \"//" -e "s/\"$//" | tr -d '\n' | tr -d '\r\n')
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 CPU=$(uname -m)
-tar -czvf "ccrush-${VER}-${OS}-${CPU}.tar.gz" $(find . -type f -iname "*.h" -o -iname "*.dll" -o -iname "*.lib" -o -iname "*.dylib" -o -iname "*.dylib*" -o -iname "*.so" -o -iname "*.so*" -o -iname "*.a" | sed "s|^\./||" | sed -e "s/^\\.//")
+tar -czvf "ccrush-${VER}-${OS}-${CPU}.tar.gz" $(find . -type f -iname "*.h" -o -iname "*.dll" -o -iname "*.lib" -o -iname "*.exp" -o -iname "*.dylib" -o -iname "*.dylib*" -o -iname "*.so" -o -iname "*.so*" -o -iname "*.a" | sed "s|^\./||" | sed -e "s/^\\.//")
 cd "$REPO" || exit
 export CC="$PREVCC"
 echo "  Done. Exported build into $REPO/build"
