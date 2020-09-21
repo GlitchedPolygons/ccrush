@@ -52,7 +52,7 @@ cd static || exit
 cmake -DBUILD_SHARED_LIBS=Off -DCCRUSH_BUILD_DLL=Off -DCCRUSH_ENABLE_TESTS=Off -DCMAKE_BUILD_TYPE=Release ../.. || exit
 cmake --build . --config Release || exit
 cd .. || exit
-find . -type f -iname "*.lib" -o -iname "*.dll" -o -iname "*.h" -o -iname "*.dylib" -o -iname "*.dylib*" -o -iname "*.so" -o -iname "*.so*" -o -iname "*.a" | tar -czvf ccrush.tar.gz -
+tar -czvf ccrush.tar.gz $(find . -type f -iname "*.h" -o -iname "*.dll" -o -iname "*.lib" -o -iname "*.dylib" -o -iname "*.dylib*" -o -iname "*.so" -o -iname "*.so*" -o -iname "*.a")
 cd "$REPO" || exit
 export CC="$PREVCC"
 echo "  Done. Exported build into $REPO/build"
