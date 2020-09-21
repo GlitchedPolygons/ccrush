@@ -41,8 +41,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+#if defined(_WIN32) && defined(CCRUSH_DLL)
+#ifdef CCRUSH_BUILD_DLL
+#define CCRUSH_API __declspec(dllexport)
+#else
+#define CCRUSH_API __declspec(dllimport)
+#endif
+#else
+#define CCRUSH_API
+#endif
+
 #include <stdint.h>
 #include <stddef.h>
+
+/**
+ * Ccrush version number.
+ */
+#define CCRUSH_VERSION 101
+
+/**
+ * Ccrush version number (as a human-readable string).
+ */
+#define CCRUSH_VERSION_STR "1.0.1"
 
 /**
  * Default chunksize to use for compression/decompression buffers.
@@ -84,7 +104,7 @@ extern "C" {
  * @param out_length Where to write the output array's length into.
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
-int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, int level, uint8_t** out, size_t* out_length);
+CCRUSH_API int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, int level, uint8_t** out, size_t* out_length);
 
 /**
  * Decompresses a given set of deflated data using inflate.
@@ -95,7 +115,7 @@ int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t buffer_siz
  * @param out_length Where to write the output array's length into.
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
-int ccrush_decompress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, uint8_t** out, size_t* out_length);
+CCRUSH_API int ccrush_decompress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, uint8_t** out, size_t* out_length);
 
 /**
  * Calculates a number's next upper power of 2. <p>

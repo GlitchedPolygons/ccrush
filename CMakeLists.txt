@@ -4,6 +4,10 @@ project(ccrush C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+set(CCRUSH_MAJOR 1)
+set(CCRUSH_MINOR 0)
+set(CCRUSH_PATCH 1)
+
 option(CCRUSH_ENABLE_TESTS "Build unit tests." OFF)
 
 set(${PROJECT_NAME}_SRC_FILES
@@ -13,7 +17,31 @@ set(${PROJECT_NAME}_SRC_FILES
         ${CMAKE_CURRENT_LIST_DIR}/include/ccrush.h
         )
 
+if (CCRUSH_BUILD_DLL)
+    add_compile_definitions("CCRUSH_BUILD_DLL=1")
+    set(CCRUSH_DLL ON)
+endif ()
+
+if (CCRUSH_DLL)
+    add_compile_definitions("CCRUSH_DLL=1")
+endif ()
+
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
+
+if (CCRUSH_BUILD_DLL OR BUILD_SHARED_LIBS)
+    set_target_properties(${PROJECT_NAME}
+            PROPERTIES
+            VERSION ${CCRUSH_MAJOR}.${CCRUSH_MINOR}.${CCRUSH_PATCH}
+            SOVERSION ${CCRUSH_MAJOR}
+            )
+endif ()
+
+set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        )
 
 if (NOT TARGET chillbuff)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/chillbuff chillbuff)
