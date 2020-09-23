@@ -33,6 +33,29 @@ If you don't want to use git submodules, you can also start vendoring a specific
 
 If you use [CMake](https://cmake.org) you can just `add_subdirectory(path_to_submodule)` and then `target_link_libraries(your_project PRIVATE ccrush)` inside your `CMakeLists.txt` file.
 
+### Building from sauce
+
+If you don't wanna grab the pre-built binaries from the [GitHub releases page](https://github.com/GlitchedPolygons/ccrush/releases) (and don't want to add ccrush as a subdirectory inside your CMake project), you can also do the following:
+
+#### Build shared library/DLL
+
+```bash
+mkdir -p build && cd build
+cmake -DBUILD_SHARED_LIBS=On -Dccrush_BUILD_DLL=On -Dccrush_PACKAGE=On -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+```
+If the build succeeds, you should have a new _.tar.gz_ file inside the `build/` directory.
+
+**NOTE:** If you use the shared library in your project on Windows, remember to `#define CCRUSH_DLL 1` before including `ccrush.h`! Maybe even set it as a pre-processor definition. Otherwise the header won't have the necessary `__declspec(dllimport)` declarations!
+
+#### Build static library
+
+```bash
+mkdir -p build && cd build
+cmake -DBUILD_SHARED_LIBS=Off -Dccrush_PACKAGE=On -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+```
+
 ### Examples
 
 #### Compressing
