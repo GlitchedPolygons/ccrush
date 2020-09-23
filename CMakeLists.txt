@@ -22,12 +22,12 @@ set(${PROJECT_NAME}_SRC_FILES
         )
 
 if (${${PROJECT_NAME}_BUILD_DLL})
-    add_compile_definitions("${PROJECT_NAME}_BUILD_DLL=1")
+    add_compile_definitions("CCRUSH_BUILD_DLL=1")
     set(${PROJECT_NAME}_DLL ON)
 endif ()
 
 if (${${PROJECT_NAME}_DLL})
-    add_compile_definitions("${PROJECT_NAME}_DLL=1")
+    add_compile_definitions("CCRUSH_DLL=1")
 endif ()
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
