@@ -57,12 +57,12 @@ extern "C" {
 /**
  * Ccrush version number.
  */
-#define CCRUSH_VERSION 101
+#define CCRUSH_VERSION 102
 
 /**
  * Ccrush version number (as a human-readable string).
  */
-#define CCRUSH_VERSION_STR "1.0.1"
+#define CCRUSH_VERSION_STR "1.0.2"
 
 /**
  * Default chunksize to use for compression/decompression buffers.
