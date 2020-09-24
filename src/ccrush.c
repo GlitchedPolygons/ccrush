@@ -273,3 +273,8 @@ exit:
 
     return (r);
 }
+
+void ccrush_free(void* mem)
+{
+    free(mem);
+}

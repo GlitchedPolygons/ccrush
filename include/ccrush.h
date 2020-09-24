@@ -118,6 +118,12 @@ CCRUSH_API int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t
 CCRUSH_API int ccrush_decompress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, uint8_t** out, size_t* out_length);
 
 /**
+ * Wrapper around <c>free()</c> (mostly useful for C# interop).
+ * @param mem The pointer to the memory to free.
+ */
+CCRUSH_API void ccrush_free(void* mem);
+
+/**
  * Calculates a number's next upper power of 2. <p>
  * Source: http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
  * @param n The number to round to the next upper power of 2.

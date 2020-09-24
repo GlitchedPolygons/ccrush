@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>GlitchedPolygons.CcrushSharp</Title>
+        <AssemblyName>GlitchedPolygons.CcrushSharp</AssemblyName>
+        <RootNamespace>GlitchedPolygons.CcrushSharp</RootNamespace>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/GlitchedPolygons/ccrush</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/GlitchedPolygons/ccrush</RepositoryUrl>
+        <Authors>Glitched Polygons</Authors>
+        <LangVersion>7</LangVersion>
+        <OutputType>Exe</OutputType>
+        <PackageId>GlitchedPolygons.CcrushSharp</PackageId>
+        <TargetFrameworks>netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\GlitchedPolygons.Ccrush.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)lib\**" CopyToOutputDirectory="Always" />
+    </ItemGroup>
+</Project>
