@@ -57,12 +57,12 @@ extern "C" {
 /**
  * Ccrush version number.
  */
-#define CCRUSH_VERSION 103
+#define CCRUSH_VERSION 104
 
 /**
  * Ccrush version number (as a human-readable string).
  */
-#define CCRUSH_VERSION_STR "1.0.3"
+#define CCRUSH_VERSION_STR "1.0.4"
 
 /**
  * Default chunksize to use for compression/decompression buffers.
@@ -122,6 +122,18 @@ CCRUSH_API int ccrush_decompress(const uint8_t* data, size_t data_length, uint32
  * @param mem The pointer to the memory to free.
  */
 CCRUSH_API void ccrush_free(void* mem);
+
+/**
+ * Get the current ccrush version number (as an unsigned integer).
+ * @return The current ccrush version number (as an unsigned integer).
+ */
+CCRUSH_API uint32_t ccrush_get_version_nr();
+
+/**
+ * Get the current ccrush version number (as a nicely formatted, human-readable string).
+ * @return The current ccrush version number (as a nicely formatted, human-readable string).
+ */
+CCRUSH_API char* ccrush_get_version_nr_string();
 
 /**
  * Calculates a number's next upper power of 2. <p>

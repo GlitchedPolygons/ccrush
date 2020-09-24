@@ -119,9 +119,9 @@ $(function() {
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="ccrush_8h.html#a9ccc55255287e791650930567cd10b10">   60</a></span>&#160;<span class="preprocessor">#define CCRUSH_VERSION 103</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="ccrush_8h.html#a9ccc55255287e791650930567cd10b10">   60</a></span>&#160;<span class="preprocessor">#define CCRUSH_VERSION 104</span></div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="ccrush_8h.html#ab539bcf850ec8251df9b0d964b8aba54">   65</a></span>&#160;<span class="preprocessor">#define CCRUSH_VERSION_STR &quot;1.0.3&quot;</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="ccrush_8h.html#ab539bcf850ec8251df9b0d964b8aba54">   65</a></span>&#160;<span class="preprocessor">#define CCRUSH_VERSION_STR &quot;1.0.4&quot;</span></div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
 <div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="ccrush_8h.html#aaef327e99ef5bc6a93ff5e0475589eef">   70</a></span>&#160;<span class="preprocessor">#define CCRUSH_DEFAULT_CHUNKSIZE (1024 * 256)</span></div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
@@ -141,26 +141,32 @@ $(function() {
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;CCRUSH_API <span class="keywordtype">void</span> <a class="code" href="ccrush_8h.html#ab6b3260beb61d9c91b41ac23306aedd7">ccrush_free</a>(<span class="keywordtype">void</span>* mem);</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160; </div>
-<div class="line"><a name="l00132"></a><span class="lineno"><a class="line" href="ccrush_8h.html#a6549a397cf83753726dedeeff274c1f9">  132</a></span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> uint64_t <a class="code" href="ccrush_8h.html#a6549a397cf83753726dedeeff274c1f9">nextpow2</a>(uint64_t n)</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;{</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    n--;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    n |= n &gt;&gt; 1;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    n |= n &gt;&gt; 2;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    n |= n &gt;&gt; 4;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    n |= n &gt;&gt; 8;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    n |= n &gt;&gt; 16;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    n |= n &gt;&gt; 32;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordflow">return</span> ++n;</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;}</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160; </div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;} <span class="comment">// extern &quot;C&quot;</span></div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="preprocessor">#endif // CCRUSH_LIBRARY_H</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;CCRUSH_API uint32_t <a class="code" href="ccrush_8h.html#aa869f0bf2107dbe27a2466b07ee958f2">ccrush_get_version_nr</a>();</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;CCRUSH_API <span class="keywordtype">char</span>* <a class="code" href="ccrush_8h.html#ab213e6dac6d22a12d2b73155008066a8">ccrush_get_version_nr_string</a>();</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
+<div class="line"><a name="l00144"></a><span class="lineno"><a class="line" href="ccrush_8h.html#a6549a397cf83753726dedeeff274c1f9">  144</a></span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> uint64_t <a class="code" href="ccrush_8h.html#a6549a397cf83753726dedeeff274c1f9">nextpow2</a>(uint64_t n)</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;{</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    n--;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    n |= n &gt;&gt; 1;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    n |= n &gt;&gt; 2;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    n |= n &gt;&gt; 4;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    n |= n &gt;&gt; 8;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    n |= n &gt;&gt; 16;</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    n |= n &gt;&gt; 32;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordflow">return</span> ++n;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;}</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160; </div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;} <span class="comment">// extern &quot;C&quot;</span></div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="preprocessor">#endif // CCRUSH_LIBRARY_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="accrush_8h_html_ab213e6dac6d22a12d2b73155008066a8"><div class="ttname"><a href="ccrush_8h.html#ab213e6dac6d22a12d2b73155008066a8">ccrush_get_version_nr_string</a></div><div class="ttdeci">CCRUSH_API char * ccrush_get_version_nr_string()</div></div>
+<div class="ttc" id="accrush_8h_html_aa869f0bf2107dbe27a2466b07ee958f2"><div class="ttname"><a href="ccrush_8h.html#aa869f0bf2107dbe27a2466b07ee958f2">ccrush_get_version_nr</a></div><div class="ttdeci">CCRUSH_API uint32_t ccrush_get_version_nr()</div></div>
 <div class="ttc" id="accrush_8h_html_af7410beaf01480e35abaf72724ba0235"><div class="ttname"><a href="ccrush_8h.html#af7410beaf01480e35abaf72724ba0235">ccrush_decompress</a></div><div class="ttdeci">CCRUSH_API int ccrush_decompress(const uint8_t *data, size_t data_length, uint32_t buffer_size_kib, uint8_t **out, size_t *out_length)</div></div>
-<div class="ttc" id="accrush_8h_html_a6549a397cf83753726dedeeff274c1f9"><div class="ttname"><a href="ccrush_8h.html#a6549a397cf83753726dedeeff274c1f9">nextpow2</a></div><div class="ttdeci">static uint64_t nextpow2(uint64_t n)</div><div class="ttdef"><b>Definition:</b> ccrush.h:132</div></div>
+<div class="ttc" id="accrush_8h_html_a6549a397cf83753726dedeeff274c1f9"><div class="ttname"><a href="ccrush_8h.html#a6549a397cf83753726dedeeff274c1f9">nextpow2</a></div><div class="ttdeci">static uint64_t nextpow2(uint64_t n)</div><div class="ttdef"><b>Definition:</b> ccrush.h:144</div></div>
 <div class="ttc" id="accrush_8h_html_ab6b3260beb61d9c91b41ac23306aedd7"><div class="ttname"><a href="ccrush_8h.html#ab6b3260beb61d9c91b41ac23306aedd7">ccrush_free</a></div><div class="ttdeci">CCRUSH_API void ccrush_free(void *mem)</div></div>
 <div class="ttc" id="accrush_8h_html_adff1cf1c550aeb17347d07667e9cec2b"><div class="ttname"><a href="ccrush_8h.html#adff1cf1c550aeb17347d07667e9cec2b">ccrush_compress</a></div><div class="ttdeci">CCRUSH_API int ccrush_compress(const uint8_t *data, size_t data_length, uint32_t buffer_size_kib, int level, uint8_t **out, size_t *out_length)</div></div>
 <!-- start footer part -->

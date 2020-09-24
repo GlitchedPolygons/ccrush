@@ -36,6 +36,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <miniz.h>
 #include <chillbuff.h>
 
+static const uint32_t CCRUSH_V = CCRUSH_VERSION;
+static const char* CCRUSH_VSTR = CCRUSH_VERSION_STR;
+
 int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length)
 {
     if (data == NULL || data_length == 0 || out == NULL || out_length == NULL)
@@ -277,4 +280,14 @@ exit:
 void ccrush_free(void* mem)
 {
     free(mem);
+}
+
+uint32_t ccrush_get_version_nr()
+{
+    return CCRUSH_V;
+}
+
+char* ccrush_get_version_nr_string()
+{
+    return CCRUSH_VSTR;
 }
