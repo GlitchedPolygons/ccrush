@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 
 namespace GlitchedPolygons.CcrushSharp
@@ -10,6 +8,7 @@ namespace GlitchedPolygons.CcrushSharp
     /// <summary>
     /// CcrushSharp class that wraps the native C functions from the ccrush library. <para> </para>
     /// Copy this class into your own C# project and then don't forget to
+    /// copy the lib/ folder to your own project's build output directory!
     /// copy the lib/ folder to your own project's build output directory!
     /// </summary>
     public class CcrushSharpContext : IDisposable
