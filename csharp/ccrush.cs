@@ -181,66 +181,72 @@ namespace GlitchedPolygons.CcrushSharp
         public string VersionString { get; }
 
         /// <summary>
-        /// Creates a new CcrushSharp instance. <para> </para>
+        /// Creates a new ccrush# instance. <para> </para>
         /// Make sure to create one only once and cache it as needed, since loading the DLLs into memory can negatively affect the performance.
+        /// <param name="sharedLibPathOverride">[OPTIONAL] Don't look for a <c>lib/</c> folder and directly use this path as a pre-resolved, platform-specific shared lib/DLL file path. Pass this if you want to handle the various platform's paths yourself.</param>
         /// </summary>
-        public CcrushSharpContext()
+        public CcrushSharpContext(string sharedLibPathOverride = null)
         {
-            StringBuilder pathBuilder = new StringBuilder(256);
-            pathBuilder.Append("lib/");
+            if (string.IsNullOrEmpty(sharedLibPathOverride))
+            {
+                StringBuilder pathBuilder = new StringBuilder(256);
+                pathBuilder.Append("lib/");
 
-            switch (RuntimeInformation.ProcessArchitecture)
-            {
-                case Architecture.X64:
-                    pathBuilder.Append("x64/");
-                    break;
-                case Architecture.X86:
-                    pathBuilder.Append("x86/");
-                    break;
-                case Architecture.Arm:
-                    pathBuilder.Append("armeabi-v7a/");
-                    break;
-                case Architecture.Arm64:
-                    pathBuilder.Append("arm64-v8a/");
-                    break;
-            }
+                switch (RuntimeInformation.ProcessArchitecture)
+                {
+                    case Architecture.X64:
+                        pathBuilder.Append("x64/");
+                        break;
+                    case Architecture.X86:
+                        pathBuilder.Append("x86/");
+                        break;
+                    case Architecture.Arm:
+                        pathBuilder.Append("armeabi-v7a/");
+                        break;
+                    case Architecture.Arm64:
+                        pathBuilder.Append("arm64-v8a/");
+                        break;
+                }
 
-            if (!Directory.Exists(pathBuilder.ToString()))
-            {
-                throw new PlatformNotSupportedException($"Ccrush shared library not found in {pathBuilder.ToString()} and/or unsupported CPU architecture. Please don't forget to copy the ccrush shared libraries/DLL into the 'lib/{{CPU_ARCHITECTURE}}/{{OS}}/{{SHARED_LIB_FILE}}' folder of your output build directory.  https://github.com/GlitchedPolygons/ccrush/tree/master/csharp");
-            }
+                if (!Directory.Exists(pathBuilder.ToString()))
+                {
+                    throw new PlatformNotSupportedException($"Ccrush shared library not found in {pathBuilder.ToString()} and/or unsupported CPU architecture. Please don't forget to copy the ccrush shared libraries/DLL into the 'lib/{{CPU_ARCHITECTURE}}/{{OS}}/{{SHARED_LIB_FILE}}' folder of your output build directory.  https://github.com/GlitchedPolygons/ccrush/tree/master/csharp");
+                }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                loadUtils = new SharedLibLoadUtilsWindows();
-                pathBuilder.Append("windows/");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                loadUtils = new SharedLibLoadUtilsLinux();
-                pathBuilder.Append("linux/");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                loadUtils = new SharedLibLoadUtilsMac();
-                pathBuilder.Append("mac/");
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    loadUtils = new SharedLibLoadUtilsWindows();
+                    pathBuilder.Append("windows/");
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    loadUtils = new SharedLibLoadUtilsLinux();
+                    pathBuilder.Append("linux/");
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    loadUtils = new SharedLibLoadUtilsMac();
+                    pathBuilder.Append("mac/");
+                }
+                else
+                {
+                    throw new PlatformNotSupportedException("Unsupported OS");
+                }
+
+                string[] l = Directory.GetFiles(pathBuilder.ToString());
+                if (l == null || l.Length != 1)
+                {
+                    throw new FileLoadException("There should only be exactly one ccrush shared library file per supported platform!");
+                }
+
+                pathBuilder.Append(Path.GetFileName(l[0]));
+                LoadedLibraryPath = Path.GetFullPath(pathBuilder.ToString());
+                pathBuilder.Clear();
             }
             else
             {
-                throw new PlatformNotSupportedException("Unsupported OS");
+                LoadedLibraryPath = sharedLibPathOverride;
             }
-
-            string[] l = Directory.GetFiles(pathBuilder.ToString());
-            if (l == null || l.Length != 1)
-            {
-                throw new FileLoadException("There should only be exactly one ccrush shared library file per supported platform!");
-            }
-
-            pathBuilder.Append(Path.GetFileName(l[0]));
-
-            LoadedLibraryPath = Path.GetFullPath(pathBuilder.ToString());
-
-            pathBuilder.Clear();
 
             lib = loadUtils.LoadLibrary(LoadedLibraryPath);
             if (lib == IntPtr.Zero)
