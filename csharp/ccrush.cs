@@ -9,7 +9,6 @@ namespace GlitchedPolygons.CcrushSharp
     /// CcrushSharp class that wraps the native C functions from the ccrush library. <para> </para>
     /// Copy this class into your own C# project and then don't forget to
     /// copy the lib/ folder to your own project's build output directory!
-    /// copy the lib/ folder to your own project's build output directory!
     /// </summary>
     public class CcrushSharpContext : IDisposable
     {
