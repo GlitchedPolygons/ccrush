@@ -444,3 +444,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 !build.sh
+
+!csharp/lib/**
