@@ -186,6 +186,23 @@ namespace GlitchedPolygons.CcrushSharp
         /// </summary>
         public CcrushSharpContext(string sharedLibPathOverride = null)
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                loadUtils = new SharedLibLoadUtilsWindows();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                loadUtils = new SharedLibLoadUtilsLinux();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                loadUtils = new SharedLibLoadUtilsMac();
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Unsupported OS");
+            }
+            
             if (string.IsNullOrEmpty(sharedLibPathOverride))
             {
                 StringBuilder pathBuilder = new StringBuilder(256);
@@ -214,17 +231,14 @@ namespace GlitchedPolygons.CcrushSharp
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    loadUtils = new SharedLibLoadUtilsWindows();
                     pathBuilder.Append("windows/");
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    loadUtils = new SharedLibLoadUtilsLinux();
                     pathBuilder.Append("linux/");
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    loadUtils = new SharedLibLoadUtilsMac();
                     pathBuilder.Append("mac/");
                 }
                 else
@@ -233,7 +247,7 @@ namespace GlitchedPolygons.CcrushSharp
                 }
 
                 string[] l = Directory.GetFiles(pathBuilder.ToString());
-                if (l == null || l.Length != 1)
+                if (l?.Length != 1)
                 {
                     throw new FileLoadException("There should only be exactly one ccrush shared library file per supported platform!");
                 }
@@ -291,7 +305,7 @@ namespace GlitchedPolygons.CcrushSharp
             var getVersionNumberStringDelegate = Marshal.GetDelegateForFunctionPointer<GetVersionNumberStringDelegate>(getVersionNumberString);
 
             Version = getVersionNumberDelegate.Invoke();
-            VersionString = Marshal.PtrToStringUTF8(getVersionNumberStringDelegate.Invoke());
+            VersionString = Marshal.PtrToStringAnsi(getVersionNumberStringDelegate.Invoke());
 
             return;
 
