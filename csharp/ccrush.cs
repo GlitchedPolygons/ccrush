@@ -151,8 +151,15 @@ namespace GlitchedPolygons.CcrushSharp
             out ulong outputLength
         );
 
+        private delegate void FreeDelegate(IntPtr mem);
+
+        private delegate uint GetVersionNumberDelegate();
+
+        private delegate IntPtr GetVersionNumberStringDelegate();
+
         private CompressDelegate compressDelegate;
         private DecompressDelegate decompressDelegate;
+        private FreeDelegate freeDelegate;
 
         #endregion
 
@@ -163,6 +170,16 @@ namespace GlitchedPolygons.CcrushSharp
         /// Absolute path to the ccrush shared library that is currently loaded into memory for CcrushSharp.
         /// </summary>
         public string LoadedLibraryPath { get; }
+
+        /// <summary>
+        /// Current ccrush version.
+        /// </summary>
+        public uint Version { get; }
+
+        /// <summary>
+        /// Nicely formatted, and 100% human-readable ccrush version number string.
+        /// </summary>
+        public string VersionString { get; }
 
         /// <summary>
         /// Creates a new CcrushSharp instance. <para> </para>
@@ -244,8 +261,33 @@ namespace GlitchedPolygons.CcrushSharp
                 goto hell;
             }
 
+            IntPtr free = loadUtils.GetProcAddress(lib, "ccrush_free");
+            if (free == IntPtr.Zero)
+            {
+                goto hell;
+            }
+
+            IntPtr getVersionNumber = loadUtils.GetProcAddress(lib, "ccrush_get_version_nr");
+            if (getVersionNumber == IntPtr.Zero)
+            {
+                goto hell;
+            }
+
+            IntPtr getVersionNumberString = loadUtils.GetProcAddress(lib, "ccrush_get_version_nr_string");
+            if (getVersionNumberString == IntPtr.Zero)
+            {
+                goto hell;
+            }
+
             compressDelegate = Marshal.GetDelegateForFunctionPointer<CompressDelegate>(compress);
             decompressDelegate = Marshal.GetDelegateForFunctionPointer<DecompressDelegate>(decompress);
+            freeDelegate = Marshal.GetDelegateForFunctionPointer<FreeDelegate>(free);
+
+            var getVersionNumberDelegate = Marshal.GetDelegateForFunctionPointer<GetVersionNumberDelegate>(getVersionNumber);
+            var getVersionNumberStringDelegate = Marshal.GetDelegateForFunctionPointer<GetVersionNumberStringDelegate>(getVersionNumberString);
+
+            Version = getVersionNumberDelegate.Invoke();
+            VersionString = Marshal.PtrToStringUTF8(getVersionNumberStringDelegate.Invoke());
 
             return;
 
@@ -291,13 +333,17 @@ namespace GlitchedPolygons.CcrushSharp
         /// <returns>The compressed data.</returns>
         public byte[] Compress(byte[] data, int level = 6, uint bufferSizeKiB = 256)
         {
-            int r = compressDelegate(data, (ulong)data.LongLength, bufferSizeKiB, level, out IntPtr output, out ulong outputLength);
-            switch (r)
+            switch (compressDelegate(data, (ulong)data.LongLength, bufferSizeKiB, level, out IntPtr output, out ulong outputLength))
             {
-                case 0:
+                case 1000:
+                    throw new ArgumentException("One or more arguments null or invalid!");
+                case 2000:
+                    throw new OutOfMemoryException();
+                default:
+                    byte[] o = MarshalReadBytes(output, outputLength, bufferSizeKiB);
+                    freeDelegate(output);
+                    return o;
             }
-
-            return r != 0 ? null : MarshalReadBytes(output, outputLength, bufferSizeKiB);
         }
 
         /// <summary>
@@ -318,6 +364,7 @@ namespace GlitchedPolygons.CcrushSharp
                     throw new OutOfMemoryException();
                 default:
                     byte[] o = MarshalReadBytes(output, outputLength, bufferSizeKiB);
+                    freeDelegate(output);
                     return o;
             }
         }
@@ -335,6 +382,42 @@ namespace GlitchedPolygons.CcrushSharp
 
         private static void Main(string[] args)
         {
+            var ccrush = new CcrushSharpContext();
+
+            Console.WriteLine();
+            Console.WriteLine(string.Format("CCRUSH VERSION: {0} ({1})", ccrush.VersionString, ccrush.Version));
+            Console.WriteLine();
+
+            const string text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                                "Orci sagittis eu volutpat odio facilisis mauris sit amet massa. Ut tortor pretium viverra suspendisse potenti nullam ac tortor vitae. " +
+                                "Tempor id eu nisl nunc mi. Ut diam quam nulla porttitor massa id neque aliquam vestibulum. Nec nam aliquam sem et. Sed augue lacus viverra vitae. " +
+                                "Suscipit tellus mauris a diam. Nunc lobortis mattis aliquam faucibus purus in. Lacus suspendisse faucibus interdum posuere. " +
+                                "Elit eget gravida cum sociis natoque. Rhoncus mattis rhoncus urna neque viverra justo nec. Justo donec enim diam vulputate.\n\n" +
+                                "Venenatis tellus in metus vulputate eu scelerisque felis imperdiet proin. Nec feugiat nisl pretium fusce id velit. Morbi non arcu risus quis varius quam. " +
+                                "Viverra orci sagittis eu volutpat odio. Imperdiet dui accumsan sit amet nulla facilisi. Consectetur lorem donec massa sapien faucibus. " +
+                                "Tortor dignissim convallis aenean et tortor. Elit scelerisque mauris pellentesque pulvinar. Cursus euismod quis viverra nibh cras. " +
+                                "Est ultricies integer quis auctor elit sed vulputate mi sit. Sapien et ligula ullamcorper malesuada proin libero nunc. " +
+                                "At augue eget arcu dictum varius duis at consectetur. Sapien pellentesque habitant morbi tristique senectus et netus et. " +
+                                "Aliquet bibendum enim facilisis gravida neque. A scelerisque purus semper eget duis at tellus. Et pharetra pharetra massa massa ultricies mi quis.\n\n" +
+                                "Senectus et netus et malesuada fames ac turpis egestas. Diam quam nulla porttitor massa id neque aliquam vestibulum. Est velit egestas dui id ornare arcu odio. " +
+                                "Elementum eu facilisis sed odio morbi quis commodo odio. Posuere lorem ipsum dolor sit. Suscipit tellus mauris a diam. " +
+                                "Hendrerit gravida rutrum quisque non tellus orci ac auctor. Aliquam etiam erat velit scelerisque in dictum non consectetur a. " +
+                                "Aenean euismod elementum nisi quis eleifend quam adipiscing. Amet purus gravida quis blandit turpis. " +
+                                "Ac placerat vestibulum lectus mauris ultrices eros in cursus turpis.\n\nFermentum leo vel orci porta non pulvinar neque. " +
+                                "Fringilla ut morbi tincidunt augue interdum velit. Tristique nulla aliquet enim tortor at auctor urna. Amet nisl purus in mollis. " +
+                                "Purus sit amet volutpat consequat mauris nunc congue nisi vitae. Pulvinar neque laoreet suspendisse interdum consectetur libero id faucibus. " +
+                                "Leo integer malesuada nunc vel. Fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis. Augue interdum velit euismod in pellentesque. " +
+                                "Tortor condimentum lacinia quis vel eros donec ac odio. Porttitor eget dolor morbi non arcu risus.\n\n";
+
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+
+            byte[] compressed = ccrush.Compress(bytes, 8);
+            byte[] decompressed = ccrush.Decompress(compressed);
+
+            Console.WriteLine(string.Format("Compressed length: {0} B", compressed.Length));
+            Console.WriteLine(string.Format("Decompressed length: {0} B", decompressed.Length));
+
+            ccrush.Dispose();
         }
     }
 }
