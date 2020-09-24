@@ -56,12 +56,12 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
-    const uint32_t buffersize = buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE;
+    const uint32_t buffersize = (uint32_t)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
     uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 
     chillbuff output_buffer;
-    r = chillbuff_init(&output_buffer, nextpow2(CCRUSH_MAX(mz_compressBound((uint64_t)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
+    r = chillbuff_init(&output_buffer, nextpow2(CCRUSH_MAX(mz_compressBound((mz_ulong)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
 
     if (r != 0 || zinbuf == NULL || zoutbuf == NULL)
     {
@@ -179,7 +179,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
-    const uint32_t buffersize = buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE;
+    const uint32_t buffersize = (uint32_t)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
     uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 

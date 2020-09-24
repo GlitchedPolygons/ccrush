@@ -40,10 +40,10 @@ If you don't wanna grab the pre-built binaries from the [GitHub releases page](h
 #### Build shared library/DLL
 
 ```bash
-mkdir -p build && cd build
-cmake -DBUILD_SHARED_LIBS=On -Dccrush_BUILD_DLL=On -Dccrush_PACKAGE=On -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --config Release
+bash build.sh
 ```
+This works on Windows too: just use the [Git Bash for Windows](https://git-scm.com/download/win) CLI!
+
 If the build succeeds, you should have a new _.tar.gz_ file inside the `build/` directory.
 
 **NOTE:** If you use the shared library in your project on Windows, remember to `#define CCRUSH_DLL 1` before including `ccrush.h`! Maybe even set it as a pre-processor definition. Otherwise the header won't have the necessary `__declspec(dllimport)` declarations!
