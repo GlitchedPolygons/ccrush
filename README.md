@@ -73,7 +73,7 @@ if (r != 0)
     fprintf(stderr, "Compression failed! \"ccrush_compress\" returned: %d", r);
 }
 
-free(compressed_data);
+ccrush_free(compressed_data);
 ```
 
 #### Decompressing
@@ -91,5 +91,5 @@ if (r != 0)
     fprintf(stderr, "Decompression failed! \"ccrush_decompress\" returned: %d", r);
 }
 
-free(data);
+ccrush_free(data);
 ```
