@@ -54,7 +54,9 @@ if (${${PROJECT_NAME}_DLL})
     add_compile_definitions("CCRUSH_DLL=1")
 endif ()
 
-add_compile_definitions("HAVE_UNISTD_H=1")
+if (NOT WIN32)
+    add_compile_definitions("HAVE_UNISTD_H=1")
+endif ()
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
 
@@ -124,7 +126,7 @@ if (${${PROJECT_NAME}_ENABLE_TESTS})
     target_include_directories(run_tests
             PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
             PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/acutest/include
-            PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/miniz
+            PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/zlib
             )
 
     target_link_libraries(run_tests
