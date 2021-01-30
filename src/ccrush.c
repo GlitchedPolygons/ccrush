@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ccrush.h"
 
 #ifndef _WIN32
+#include <sys/types.h>
 #include <unistd.h>
 #endif
 
