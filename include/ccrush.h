@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  *  @file ccrush.h
  *  @author Raphael Beck
- *  @brief Compress and decompress byte arrays easily using wrapper functions around miniz.
+ *  @brief Compress and decompress byte arrays easily using wrapper functions around Zlib.
  */
 
 #ifndef CCRUSH_LIBRARY_H
