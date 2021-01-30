@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-
+#include <time.h>
 #include <ccrush.h>
 #include <acutest.h>
 
@@ -40,6 +40,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static void null_test_success()
 {
     TEST_CHECK(1);
+}
+
+static volatile unsigned int tmpctr = 0;
+
+static void tmpfilepath(char output_path[256])
+{
+#ifdef _WIN32
+    snprintf(output_path, 256, "C:\\TEMP\\ccrush-%zu-%u-test.txt", time(NULL), tmpctr++);
+#else
+    snprintf(output_path, 256, "/tmp/ccrush-%zu-%u-test.txt", time(NULL), tmpctr++);
+#endif
 }
 
 static void ccrush_compress_invalid_args()
@@ -51,6 +62,16 @@ static void ccrush_compress_invalid_args()
     TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 0, 256, 8, &out, &out_length));
     TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 256, 8, NULL, &out_length));
     TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 256, 8, &out, NULL));
+}
+
+static void ccrush_compress_file_invalid_args()
+{
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_compress_file(NULL, NULL, 256, 8));
+}
+
+static void ccrush_decompress_file_invalid_args()
+{
+    TEST_CHECK(CCRUSH_ERROR_INVALID_ARGS == ccrush_decompress_file(NULL, NULL, 8));
 }
 
 static void ccrush_compress_buffersize_too_large()
@@ -80,15 +101,15 @@ static void ccrush_decompress_buffersize_too_large()
     TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 23 + 1, 1024 * 1024 * 1024, &out, &out_length));
 }
 
+static const char text[] = "The nuclear weapons disposal facility on Shadow Moses Island in Alaska's Fox Archipelago was attacked and captured by Next Generation Special Forces being lead by members of FOX-HOUND.\n"
+                           "They're demanding that the government turn over the remains of Big Boss, and they say that if their demands aren't met within 24 hours, they'll launch a nuclear weapon.\n"
+                           "You'll have two mission objectives. First: you're to rescue DARPA Chief Donald Anderson, and the President of Armstech, Kenneth Baker. Both are being held as hostages.\n"
+                           "Secondly, you're to investigate whether or not the terrorists have the ability to make a nuclear strike, and stop them if they do!";
+
+static const size_t text_length = sizeof(text) - 1;
+
 static void ccrush_compress_string_result_is_smaller_and_decompression_succeeds()
 {
-    const char* text = "The nuclear weapons disposal facility on Shadow Moses Island in Alaska's Fox Archipelago was attacked and captured by Next Generation Special Forces being lead by members of FOX-HOUND.\n"
-                       "They're demanding that the government turn over the remains of Big Boss, and they say that if their demands aren't met within 24 hours, they'll launch a nuclear weapon.\n"
-                       "You'll have two mission objectives. First: you're to rescue DARPA Chief Donald Anderson, and the President of Armstech, Kenneth Baker. Both are being held as hostages.\n"
-                       "Secondly, you're to investigate whether or not the terrorists have the ability to make a nuclear strike, and stop them if they do!";
-
-    const size_t text_length = strlen(text);
-
     uint8_t* compressed_text = NULL;
     size_t compressed_text_length = 0;
 
@@ -104,6 +125,65 @@ static void ccrush_compress_string_result_is_smaller_and_decompression_succeeds(
 
     free(compressed_text);
     free(decompressed_text);
+}
+
+static void ccrush_compress_file_result_is_smaller_and_decompression_succeeds()
+{
+    char input_file_path[256] = { 0x00 };
+    char output_file_path[256] = { 0x00 };
+    char output2_file_path[256] = { 0x00 };
+
+    tmpfilepath(input_file_path);
+    tmpfilepath(output_file_path);
+    tmpfilepath(output2_file_path);
+
+    FILE* input_file = fopen(input_file_path, "a");
+    TEST_ASSERT(input_file != NULL);
+
+    for (int i = 0; i < 4096; ++i)
+    {
+        fwrite(text, sizeof(char), text_length, input_file);
+    }
+
+    fclose(input_file);
+    input_file = NULL;
+
+    TEST_CHECK(ccrush_compress_file(input_file_path, output_file_path, 256, 8) == 0);
+    //  TODO:  TEST_CHECK(compressed_text_length < text_length);
+
+    TEST_CHECK(0 == ccrush_decompress_file(output_file_path, output2_file_path, 256));
+    // TEST_CHECK(0 == strncmp(text, decompressed_text, text_length));
+    // TEST_CHECK(text_length == decompressed_text_length);
+}
+
+// TODO test large files support!
+static void ccrush_compress_bigfile_result_is_smaller_and_decompression_succeeds()
+{
+    char input_file_path[256] = { 0x00 };
+    char output_file_path[256] = { 0x00 };
+    char output2_file_path[256] = { 0x00 };
+
+    tmpfilepath(input_file_path);
+    tmpfilepath(output_file_path);
+    tmpfilepath(output2_file_path);
+
+    FILE* input_file = fopen(input_file_path, "a");
+    TEST_ASSERT(input_file != NULL);
+
+    for (int i = 0; i < 7000000; ++i)
+    {
+        fwrite(text, sizeof(char), text_length, input_file);
+    }
+
+    fclose(input_file);
+    input_file = NULL;
+
+    TEST_CHECK(ccrush_compress_file(input_file_path, output_file_path, 256, 8) == 0);
+    //  TODO:  TEST_CHECK(compressed_text_length < text_length);
+
+    TEST_CHECK(0 == ccrush_decompress_file(output_file_path, output2_file_path, 256));
+    // TEST_CHECK(0 == strncmp(text, decompressed_text, text_length));
+    // TEST_CHECK(text_length == decompressed_text_length);
 }
 
 static void ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds()
@@ -298,11 +378,14 @@ TEST_LIST = {
     //
     { "nulltest", null_test_success }, //
     { "ccrush_compress_invalid_args", ccrush_compress_invalid_args }, //
+    { "ccrush_compress_file_invalid_args", ccrush_compress_file_invalid_args }, //
+    { "ccrush_decompress_file_invalid_args", ccrush_decompress_file_invalid_args }, //
     { "ccrush_compress_buffersize_too_large", ccrush_compress_buffersize_too_large }, //
     { "ccrush_decompress_invalid_args", ccrush_decompress_invalid_args }, //
     { "ccrush_decompress_buffersize_too_large", ccrush_decompress_buffersize_too_large }, //
     { "ccrush_compress_string_result_is_smaller_and_decompression_succeeds", ccrush_compress_string_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds", ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds }, //
+    { "ccrush_compress_file_result_is_smaller_and_decompression_succeeds", ccrush_compress_file_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_decompress_wrong_data_fails", ccrush_decompress_wrong_data_fails }, //
     //
     // ----------------------------------------------------------------------------------------------------------

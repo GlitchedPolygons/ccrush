@@ -50,28 +50,22 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
 
-    int r = -1;
+    int r;
 
     mz_stream stream;
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
-    const uint32_t buffersize = (uint32_t)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
-    uint8_t* zinbuf = malloc(buffersize);
+    const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
+
     uint8_t* zoutbuf = malloc(buffersize);
 
     chillbuff output_buffer;
-    r = chillbuff_init(&output_buffer, nextpow2(CCRUSH_MAX(mz_compressBound((mz_ulong)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
+    r = chillbuff_init(&output_buffer, ccrush_nextpow2(CCRUSH_MAX(mz_compressBound((mz_ulong)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
 
-    if (r != 0 || zinbuf == NULL || zoutbuf == NULL)
+    if (r != 0 || zoutbuf == NULL)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
-        goto exit;
-    }
-
-    if ((data_length | output_buffer.capacity) > 0xFFFFFFFFU)
-    {
-        r = MZ_PARAM_ERROR;
         goto exit;
     }
 
@@ -81,32 +75,31 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         goto exit;
     }
 
-    stream.next_in = zinbuf;
+    stream.next_in = data;
     stream.avail_in = 0;
     stream.next_out = zoutbuf;
     stream.avail_out = buffersize;
 
-    size_t remaining = data_length;
+    size_t remaining = data_length, consumed = 0;
 
     for (;;)
     {
         if (stream.avail_in == 0)
         {
-            const uint32_t n = (uint32_t)(CCRUSH_MIN((size_t)buffersize, remaining));
+            const unsigned int n = (unsigned int)(CCRUSH_MIN((size_t)buffersize, remaining));
 
-            memcpy(zinbuf, data + stream.total_in, n);
-
-            stream.next_in = zinbuf;
+            stream.next_in = data + consumed;
             stream.avail_in = n;
 
+            consumed += n;
             remaining -= n;
         }
 
-        r = deflate(&stream, remaining ? Z_NO_FLUSH : Z_FINISH);
+        r = mz_deflate(&stream, remaining ? MZ_NO_FLUSH : MZ_FINISH);
 
-        if (r == Z_STREAM_END || stream.avail_out == 0)
+        if (r == MZ_STREAM_END || stream.avail_out == 0)
         {
-            const uint32_t n = buffersize - stream.avail_out;
+            const unsigned int n = buffersize - stream.avail_out;
 
             chillbuff_push_back(&output_buffer, zoutbuf, n);
 
@@ -114,9 +107,8 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
             stream.avail_out = buffersize;
         }
 
-        if (r == Z_STREAM_END)
+        if (r == MZ_STREAM_END)
         {
-            r = 0;
             break;
         }
         else if (r != 0)
@@ -142,12 +134,6 @@ exit:
     mz_deflateEnd(&stream);
     memset(&stream, 0x00, sizeof(stream));
 
-    if (zinbuf != NULL)
-    {
-        memset(zinbuf, 0x00, buffersize);
-        free(zinbuf);
-    }
-
     if (zoutbuf != NULL)
     {
         memset(zoutbuf, 0x00, buffersize);
@@ -155,6 +141,133 @@ exit:
     }
 
     chillbuff_free(&output_buffer);
+
+    return (r);
+}
+
+int ccrush_compress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib, int level)
+{
+    if (!input_file_path || !output_file_path || input_file_path == output_file_path || strcmp(input_file_path, output_file_path) == 0)
+    {
+        return CCRUSH_ERROR_INVALID_ARGS;
+    }
+
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
+
+    if (buffer_size_b >= UINT32_MAX)
+    {
+        return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
+    }
+
+    int r;
+
+    mz_stream stream;
+    memset(&stream, 0x00, sizeof(stream));
+
+    assert(sizeof(uint8_t) == 1);
+    const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
+
+    uint8_t* input_buffer = malloc(buffersize);
+    uint8_t* output_buffer = malloc(buffersize);
+
+    FILE* input_file = fopen(input_file_path, "r");
+    FILE* output_file = fopen(output_file_path, "w");
+
+    if (input_file == NULL || output_file == NULL)
+    {
+        r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
+        goto exit;
+    }
+
+    if (input_buffer == NULL || output_buffer == NULL)
+    {
+        r = CCRUSH_ERROR_OUT_OF_MEMORY;
+        goto exit;
+    }
+
+    r = mz_deflateInit(&stream, level);
+    if (r != MZ_OK)
+    {
+        goto exit;
+    }
+
+    int flush;
+
+    do
+    {
+        stream.avail_in = fread(input_buffer, sizeof(uint8_t), buffersize, input_file);
+        if (ferror(input_file))
+        {
+            r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
+            goto exit;
+        }
+
+        flush = feof(input_file) ? MZ_FINISH : MZ_NO_FLUSH;
+        stream.next_in = input_buffer;
+
+        do
+        {
+            stream.avail_out = buffersize;
+            stream.next_out = output_buffer;
+
+            r = mz_deflate(&stream, flush);
+            if (r == MZ_STREAM_ERROR)
+            {
+                goto exit;
+            }
+
+            const unsigned int processed = buffersize - stream.avail_out;
+
+            if (fwrite(output_buffer, sizeof(uint8_t), processed, output_file) != processed || ferror(output_file))
+            {
+                r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
+                goto exit;
+            }
+
+        } while (stream.avail_out == 0);
+
+        if (stream.avail_in != 0)
+        {
+            r = MZ_STREAM_ERROR;
+            goto exit;
+        }
+
+    } while (flush != MZ_FINISH);
+
+    if (r != MZ_STREAM_END)
+    {
+        r = MZ_STREAM_ERROR;
+        goto exit;
+    }
+
+    r = 0;
+
+exit:
+
+    mz_deflateEnd(&stream);
+    memset(&stream, 0x00, sizeof(stream));
+
+    if (input_buffer != NULL)
+    {
+        memset(input_buffer, 0x00, buffersize);
+        free(input_buffer);
+    }
+
+    if (output_buffer != NULL)
+    {
+        memset(output_buffer, 0x00, buffersize);
+        free(output_buffer);
+    }
+
+    if (input_file != NULL)
+    {
+        fclose(input_file);
+    }
+
+    if (output_file != NULL)
+    {
+        fclose(output_file);
+    }
 
     return (r);
 }
@@ -173,25 +286,25 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
 
-    int r = -1;
+    int r;
 
     mz_stream stream;
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
-    const uint32_t buffersize = (uint32_t)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
-    uint8_t* zinbuf = malloc(buffersize);
+    const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
+
     uint8_t* zoutbuf = malloc(buffersize);
 
-    stream.next_in = zinbuf;
+    stream.next_in = data;
     stream.avail_in = 0;
     stream.next_out = zoutbuf;
     stream.avail_out = buffersize;
 
     chillbuff output_buffer;
-    r = chillbuff_init(&output_buffer, nextpow2((uint64_t)data_length * 2), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
+    r = chillbuff_init(&output_buffer, ccrush_nextpow2((uint64_t)data_length * 2), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
 
-    if (zinbuf == NULL || zoutbuf == NULL || r == CHILLBUFF_OUT_OF_MEM)
+    if (zoutbuf == NULL || r == CHILLBUFF_OUT_OF_MEM)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
         goto exit;
@@ -203,26 +316,26 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         goto exit;
     }
 
-    size_t remaining = data_length;
+    size_t remaining = data_length, consumed = 0;
 
     for (;;)
     {
         if (stream.avail_in == 0)
         {
-            const uint32_t n = (uint32_t)(CCRUSH_MIN((size_t)buffersize, remaining));
+            const unsigned int n = (unsigned int)(CCRUSH_MIN((size_t)buffersize, remaining));
 
-            memcpy(zinbuf, data + stream.total_in, n);
-            stream.next_in = zinbuf;
+            stream.next_in = data + consumed;
             stream.avail_in = n;
 
+            consumed += n;
             remaining -= n;
         }
 
-        r = mz_inflate(&stream, Z_SYNC_FLUSH);
+        r = mz_inflate(&stream, MZ_SYNC_FLUSH);
 
-        if (r == Z_STREAM_END || stream.avail_out == 0)
+        if (r == MZ_STREAM_END || stream.avail_out == 0)
         {
-            const uint32_t n = buffersize - stream.avail_out;
+            const unsigned int n = buffersize - stream.avail_out;
 
             chillbuff_push_back(&output_buffer, zoutbuf, n);
 
@@ -230,9 +343,8 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
             stream.avail_out = buffersize;
         }
 
-        if (r == Z_STREAM_END)
+        if (r == MZ_STREAM_END)
         {
-            r = 0;
             break;
         }
         else if (r != 0)
@@ -257,12 +369,6 @@ exit:
 
     mz_inflateEnd(&stream);
 
-    if (zinbuf != NULL)
-    {
-        memset(zinbuf, 0x00, buffersize);
-        free(zinbuf);
-    }
-
     if (zoutbuf != NULL)
     {
         memset(zoutbuf, 0x00, buffersize);
@@ -270,6 +376,129 @@ exit:
     }
 
     chillbuff_free(&output_buffer);
+
+    return (r);
+}
+
+int ccrush_decompress_file(const char* input_file_path, const char* output_file_path, const uint32_t buffer_size_kib)
+{
+    if (!input_file_path || !output_file_path || input_file_path == output_file_path || strcmp(input_file_path, output_file_path) == 0)
+    {
+        return CCRUSH_ERROR_INVALID_ARGS;
+    }
+
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
+
+    if (buffer_size_b >= UINT32_MAX)
+    {
+        return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
+    }
+
+    int r;
+
+    mz_stream stream;
+    memset(&stream, 0x00, sizeof(stream));
+
+    assert(sizeof(uint8_t) == 1);
+    const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
+
+    uint8_t* input_buffer = malloc(buffersize);
+    uint8_t* output_buffer = malloc(buffersize);
+
+    FILE* input_file = fopen(input_file_path, "r");
+    FILE* output_file = fopen(output_file_path, "w");
+
+    if (input_file == NULL || output_file == NULL)
+    {
+        r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
+        goto exit;
+    }
+
+    if (input_buffer == NULL || output_buffer == NULL)
+    {
+        r = CCRUSH_ERROR_OUT_OF_MEMORY;
+        goto exit;
+    }
+
+    r = mz_inflateInit(&stream);
+    if (r != MZ_OK)
+    {
+        goto exit;
+    }
+
+    do
+    {
+        stream.avail_in = fread(input_buffer, sizeof(uint8_t), buffersize, input_file);
+        if (ferror(input_file))
+        {
+            r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
+            goto exit;
+        }
+
+        if (stream.avail_in == 0)
+        {
+            break;
+        }
+
+        stream.next_in = input_buffer;
+
+        do
+        {
+            stream.avail_out = buffersize;
+            stream.next_out = output_buffer;
+
+            r = mz_inflate(&stream, MZ_NO_FLUSH);
+
+            switch (r)
+            {
+                case MZ_NEED_DICT:
+                    r = MZ_DATA_ERROR; /* Intentional fall-through. */
+                case MZ_DATA_ERROR:
+                case MZ_MEM_ERROR:
+                case MZ_STREAM_ERROR:
+                    goto exit;
+            }
+
+            const unsigned int processed = buffersize - stream.avail_out;
+
+            if (fwrite(output_buffer, sizeof(uint8_t), processed, output_file) != processed || ferror(output_file))
+            {
+                r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
+                goto exit;
+            }
+
+        } while (stream.avail_out == 0);
+
+    } while (r != MZ_STREAM_END);
+
+    r = r == MZ_STREAM_END ? 0 : MZ_DATA_ERROR;
+
+exit:
+
+    mz_inflateEnd(&stream);
+    memset(&stream, 0x00, sizeof(stream));
+
+    if (input_buffer != NULL)
+    {
+        memset(input_buffer, 0x00, buffersize);
+        free(input_buffer);
+    }
+
+    if (output_buffer != NULL)
+    {
+        memset(output_buffer, 0x00, buffersize);
+        free(output_buffer);
+    }
+
+    if (input_file != NULL)
+    {
+        fclose(input_file);
+    }
+
+    if (output_file != NULL)
+    {
+        fclose(output_file);
+    }
 
     return (r);
 }

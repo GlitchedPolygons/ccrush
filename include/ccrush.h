@@ -57,12 +57,12 @@ extern "C" {
 /**
  * Ccrush version number.
  */
-#define CCRUSH_VERSION 104
+#define CCRUSH_VERSION 200
 
 /**
  * Ccrush version number (as a human-readable string).
  */
-#define CCRUSH_VERSION_STR "1.0.4"
+#define CCRUSH_VERSION_STR "2.0.0"
 
 /**
  * Default chunksize to use for compression/decompression buffers.
@@ -78,6 +78,11 @@ extern "C" {
  * Error code for exaggerated buffer size arguments...
  */
 #define CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE 1001
+
+/**
+ * Error code for when you compress/decompress a \c FILE* and either the input or output \c FILE* couldn't be opened/written to.
+ */
+#define CCRUSH_ERROR_FILE_ACCESS_FAILED 1002
 
 /**
  * Error code for OOM scenarios. Uh oh...
@@ -107,6 +112,16 @@ extern "C" {
 CCRUSH_API int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, int level, uint8_t** out, size_t* out_length);
 
 /**
+ * Compresses a given file and writes it into the passed output file path.
+ * @param input_file_path The file to compress.
+ * @param output_file_path The output file path where the compressed file should be written to.
+ * @param buffer_size_kib The underlying buffer size to use (in KiB). Pass <c>0</c> to use the default value #CCRUSH_DEFAULT_CHUNKSIZE. Especially <c>inflate()</c> profits from a relatively large buffer a.k.a. "chunk" size. A 256KiB buffer works great :)
+ * @param level The level of compression <c>[0-9]</c>. Lower means faster, higher level means better compression (but slower). Default is <c>6</c>. If you pass a value that is out of the allowed range of <c>[0-9]</c>, <c>6</c> will be used! <c>0</c> does not compress at all...
+ * @return <c>0</c> on success; non-zero error codes if something fails.
+ */
+CCRUSH_API int ccrush_compress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib, int level);
+
+/**
  * Decompresses a given set of deflated data using inflate.
  * @param data The compressed bytes to decompress.
  * @param data_length Length of the \p data array.
@@ -116,6 +131,15 @@ CCRUSH_API int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
 CCRUSH_API int ccrush_decompress(const uint8_t* data, size_t data_length, uint32_t buffer_size_kib, uint8_t** out, size_t* out_length);
+
+/**
+ * Decompresses a given file and writes it into the passed output file path.
+ * @param input_file_path The file to decompress.
+ * @param output_file_path The output file path where the decompressed file should be written to.
+ * @param buffer_size_kib The underlying buffer size to use (in KiB). Pass <c>0</c> to use the default value #CCRUSH_DEFAULT_CHUNKSIZE. Especially <c>inflate()</c> profits from a relatively large buffer a.k.a. "chunk" size. A 256KiB buffer works great :)
+ * @return <c>0</c> on success; non-zero error codes if something fails.
+ */
+CCRUSH_API int ccrush_decompress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib);
 
 /**
  * Wrapper around <c>free()</c> (mostly useful for C# interop).
@@ -141,7 +165,7 @@ CCRUSH_API char* ccrush_get_version_nr_string();
  * @param n The number to round to the next upper power of 2.
  * @return The upper next power of 2.
  */
-static inline uint64_t nextpow2(uint64_t n)
+static inline uint64_t ccrush_nextpow2(uint64_t n)
 {
     n--;
     n |= n >> 1;
