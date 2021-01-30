@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <miniz.h>
+#include <zlib.h>
 #include <chillbuff.h>
 
 int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length)
@@ -57,12 +57,13 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
     const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
 
+    uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 
     chillbuff output_buffer;
     r = chillbuff_init(&output_buffer, ccrush_nextpow2(CCRUSH_MAX(compressBound((unsigned long)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
 
-    if (r != 0 || zoutbuf == NULL)
+    if (r != 0 || zinbuf == NULL || zoutbuf == NULL)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
         goto exit;
@@ -74,7 +75,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         goto exit;
     }
 
-    stream.next_in = data;
+    stream.next_in = zinbuf;
     stream.avail_in = 0;
     stream.next_out = zoutbuf;
     stream.avail_out = buffersize;
@@ -87,7 +88,9 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         {
             const unsigned int n = (unsigned int)(CCRUSH_MIN((size_t)buffersize, remaining));
 
-            stream.next_in = data + consumed;
+            memcpy(zinbuf, data + consumed, n);
+
+            stream.next_in = zinbuf;
             stream.avail_in = n;
 
             consumed += n;
@@ -132,6 +135,12 @@ exit:
 
     deflateEnd(&stream);
     memset(&stream, 0x00, sizeof(stream));
+
+    if (zinbuf != NULL)
+    {
+        memset(zinbuf, 0x00, buffersize);
+        free(zinbuf);
+    }
 
     if (zoutbuf != NULL)
     {
@@ -291,9 +300,10 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
     const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
     const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
 
+    uint8_t* zinbuf = malloc(buffersize);
     uint8_t* zoutbuf = malloc(buffersize);
 
-    stream.next_in = data;
+    stream.next_in = zinbuf;
     stream.avail_in = 0;
     stream.next_out = zoutbuf;
     stream.avail_out = buffersize;
@@ -301,7 +311,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
     chillbuff output_buffer;
     r = chillbuff_init(&output_buffer, ccrush_nextpow2((uint64_t)data_length * 2), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
 
-    if (zoutbuf == NULL || r == CHILLBUFF_OUT_OF_MEM)
+    if (zinbuf == NULL || zoutbuf == NULL || r == CHILLBUFF_OUT_OF_MEM)
     {
         r = CCRUSH_ERROR_OUT_OF_MEMORY;
         goto exit;
@@ -321,7 +331,9 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         {
             const unsigned int n = (unsigned int)(CCRUSH_MIN((size_t)buffersize, remaining));
 
-            stream.next_in = data + consumed;
+            memcpy(zinbuf, data + consumed, n);
+
+            stream.next_in = zinbuf;
             stream.avail_in = n;
 
             consumed += n;

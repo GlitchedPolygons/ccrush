@@ -15,8 +15,32 @@ option(${PROJECT_NAME}_ENABLE_TESTS "Build unit tests." OFF)
 option(${PROJECT_NAME}_PACKAGE "Build the library and package it into a .tar.gz after successfully building." OFF)
 
 set(${PROJECT_NAME}_SRC_FILES
-        ${CMAKE_CURRENT_LIST_DIR}/lib/miniz/miniz.c
-        ${CMAKE_CURRENT_LIST_DIR}/lib/miniz/miniz.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/adler32.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/compress.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/crc32.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/crc32.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/deflate.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/deflate.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/gzclose.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/gzguts.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/gzlib.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/gzread.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/gzwrite.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/infback.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inffast.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inffast.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inffixed.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inflate.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inflate.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inftrees.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/inftrees.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/trees.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/trees.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/uncompr.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/zutil.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/zutil.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/zconf.h
+        ${CMAKE_CURRENT_LIST_DIR}/lib/zlib/zlib.h
         ${CMAKE_CURRENT_LIST_DIR}/src/ccrush.c
         ${CMAKE_CURRENT_LIST_DIR}/include/ccrush.h
         )
@@ -79,7 +103,7 @@ endif ()
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
-        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/miniz
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/zlib
         )
 
 target_link_libraries(${PROJECT_NAME}
