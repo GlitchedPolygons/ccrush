@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _WIN32
 #include <sys/types.h>
 #include <unistd.h>
+#define HAVE_UNISTD_H 1
 #endif
 
 #include <ctype.h>
