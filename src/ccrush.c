@@ -50,7 +50,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
 
     int r;
 
-    mz_stream stream;
+    z_stream stream;
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
@@ -60,7 +60,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     uint8_t* zoutbuf = malloc(buffersize);
 
     chillbuff output_buffer;
-    r = chillbuff_init(&output_buffer, ccrush_nextpow2(CCRUSH_MAX(mz_compressBound((mz_ulong)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
+    r = chillbuff_init(&output_buffer, ccrush_nextpow2(CCRUSH_MAX(compressBound((unsigned long)data_length), buffersize)), sizeof(uint8_t), CHILLBUFF_GROW_DUPLICATIVE);
 
     if (r != 0 || zoutbuf == NULL)
     {
@@ -68,8 +68,8 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         goto exit;
     }
 
-    r = mz_deflateInit(&stream, level < 0 || level > 9 ? 6 : level);
-    if (r != MZ_OK)
+    r = deflateInit(&stream, level < 0 || level > 9 ? 6 : level);
+    if (r != Z_OK)
     {
         goto exit;
     }
@@ -94,9 +94,9 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
             remaining -= n;
         }
 
-        r = mz_deflate(&stream, remaining ? MZ_NO_FLUSH : MZ_FINISH);
+        r = deflate(&stream, remaining ? Z_NO_FLUSH : Z_FINISH);
 
-        if (r == MZ_STREAM_END || stream.avail_out == 0)
+        if (r == Z_STREAM_END || stream.avail_out == 0)
         {
             const unsigned int n = buffersize - stream.avail_out;
 
@@ -106,7 +106,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
             stream.avail_out = buffersize;
         }
 
-        if (r == MZ_STREAM_END)
+        if (r == Z_STREAM_END)
         {
             break;
         }
@@ -130,7 +130,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
 
 exit:
 
-    mz_deflateEnd(&stream);
+    deflateEnd(&stream);
     memset(&stream, 0x00, sizeof(stream));
 
     if (zoutbuf != NULL)
@@ -158,7 +158,7 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
 
     int r;
 
-    mz_stream stream;
+    z_stream stream;
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
@@ -183,8 +183,8 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
         goto exit;
     }
 
-    r = mz_deflateInit(&stream, level);
-    if (r != MZ_OK)
+    r = deflateInit(&stream, level);
+    if (r != Z_OK)
     {
         goto exit;
     }
@@ -200,7 +200,7 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
             goto exit;
         }
 
-        flush = feof(input_file) ? MZ_FINISH : MZ_NO_FLUSH;
+        flush = feof(input_file) ? Z_FINISH : Z_NO_FLUSH;
         stream.next_in = input_buffer;
 
         do
@@ -208,8 +208,8 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
             stream.avail_out = buffersize;
             stream.next_out = output_buffer;
 
-            r = mz_deflate(&stream, flush);
-            if (r == MZ_STREAM_ERROR)
+            r = deflate(&stream, flush);
+            if (r == Z_STREAM_ERROR)
             {
                 goto exit;
             }
@@ -226,15 +226,15 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
 
         if (stream.avail_in != 0)
         {
-            r = MZ_STREAM_ERROR;
+            r = Z_STREAM_ERROR;
             goto exit;
         }
 
-    } while (flush != MZ_FINISH);
+    } while (flush != Z_FINISH);
 
-    if (r != MZ_STREAM_END)
+    if (r != Z_STREAM_END)
     {
-        r = MZ_STREAM_ERROR;
+        r = Z_STREAM_ERROR;
         goto exit;
     }
 
@@ -242,7 +242,7 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
 
 exit:
 
-    mz_deflateEnd(&stream);
+    deflateEnd(&stream);
     memset(&stream, 0x00, sizeof(stream));
 
     if (input_buffer != NULL)
@@ -284,7 +284,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
 
     int r;
 
-    mz_stream stream;
+    z_stream stream;
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
@@ -307,7 +307,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         goto exit;
     }
 
-    r = mz_inflateInit(&stream);
+    r = inflateInit(&stream);
     if (r != 0)
     {
         goto exit;
@@ -328,9 +328,9 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
             remaining -= n;
         }
 
-        r = mz_inflate(&stream, MZ_SYNC_FLUSH);
+        r = inflate(&stream, Z_SYNC_FLUSH);
 
-        if (r == MZ_STREAM_END || stream.avail_out == 0)
+        if (r == Z_STREAM_END || stream.avail_out == 0)
         {
             const unsigned int n = buffersize - stream.avail_out;
 
@@ -340,7 +340,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
             stream.avail_out = buffersize;
         }
 
-        if (r == MZ_STREAM_END)
+        if (r == Z_STREAM_END)
         {
             break;
         }
@@ -364,7 +364,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
 
 exit:
 
-    mz_inflateEnd(&stream);
+    inflateEnd(&stream);
 
     if (zoutbuf != NULL)
     {
@@ -391,7 +391,7 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
 
     int r;
 
-    mz_stream stream;
+    z_stream stream;
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
@@ -416,8 +416,8 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
         goto exit;
     }
 
-    r = mz_inflateInit(&stream);
-    if (r != MZ_OK)
+    r = inflateInit(&stream);
+    if (r != Z_OK)
     {
         goto exit;
     }
@@ -443,15 +443,15 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
             stream.avail_out = buffersize;
             stream.next_out = output_buffer;
 
-            r = mz_inflate(&stream, MZ_NO_FLUSH);
+            r = inflate(&stream, Z_NO_FLUSH);
 
             switch (r)
             {
-                case MZ_NEED_DICT:
-                    r = MZ_DATA_ERROR; /* Intentional fall-through. */
-                case MZ_DATA_ERROR:
-                case MZ_MEM_ERROR:
-                case MZ_STREAM_ERROR:
+                case Z_NEED_DICT:
+                    r = Z_DATA_ERROR; /* Intentional fall-through. */
+                case Z_DATA_ERROR:
+                case Z_MEM_ERROR:
+                case Z_STREAM_ERROR:
                     goto exit;
             }
 
@@ -465,13 +465,13 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
 
         } while (stream.avail_out == 0);
 
-    } while (r != MZ_STREAM_END);
+    } while (r != Z_STREAM_END);
 
-    r = r == MZ_STREAM_END ? 0 : MZ_DATA_ERROR;
+    r = r == Z_STREAM_END ? 0 : Z_DATA_ERROR;
 
 exit:
 
-    mz_inflateEnd(&stream);
+    inflateEnd(&stream);
     memset(&stream, 0x00, sizeof(stream));
 
     if (input_buffer != NULL)

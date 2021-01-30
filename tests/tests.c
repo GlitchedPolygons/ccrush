@@ -209,7 +209,7 @@ static void ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeed
     FILE* input_file = fopen(input_file_path, "a");
     TEST_ASSERT(input_file != NULL);
 
-    for (int i = 0; i < 7000000; ++i)
+    for (int i = 0; i < 65536; ++i)
     {
         fwrite(text, sizeof(char), text_length, input_file);
     }
