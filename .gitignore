@@ -5,6 +5,7 @@
 **/[Oo]ut
 **/[Bb]uild*
 !build.sh
+!build.bat
 **/[Cc]make-build-*
 latex/
 
