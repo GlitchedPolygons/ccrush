@@ -49,7 +49,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    if (buffer_size_kib >= UINT16_MAX)
+    if (buffer_size_kib >= CCRUSH_MAX_BUFFER_SIZE_KiB)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -166,7 +166,7 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    if (buffer_size_kib >= UINT16_MAX)
+    if (buffer_size_kib > CCRUSH_MAX_BUFFER_SIZE_KiB)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -292,7 +292,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    if (buffer_size_kib >= UINT16_MAX)
+    if (buffer_size_kib > CCRUSH_MAX_BUFFER_SIZE_KiB)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -402,7 +402,7 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    if (buffer_size_kib >= UINT16_MAX)
+    if (buffer_size_kib > CCRUSH_MAX_BUFFER_SIZE_KiB)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }

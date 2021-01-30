@@ -14,6 +14,7 @@ var searchData=
   ['ccrush_5fget_5fversion_5fnr',['ccrush_get_version_nr',['../ccrush_8h.html#aa869f0bf2107dbe27a2466b07ee958f2',1,'ccrush.h']]],
   ['ccrush_5fget_5fversion_5fnr_5fstring',['ccrush_get_version_nr_string',['../ccrush_8h.html#ab213e6dac6d22a12d2b73155008066a8',1,'ccrush.h']]],
   ['ccrush_5fmax',['CCRUSH_MAX',['../ccrush_8h.html#a9e98eead06ea6e027768ad332f68dca5',1,'ccrush.h']]],
+  ['ccrush_5fmax_5fbuffer_5fsize_5fkib',['CCRUSH_MAX_BUFFER_SIZE_KiB',['../ccrush_8h.html#a8cdfe7c161687349797ced00a65511a6',1,'ccrush.h']]],
   ['ccrush_5fmin',['CCRUSH_MIN',['../ccrush_8h.html#a4170355916061c97a55f360fa233c619',1,'ccrush.h']]],
   ['ccrush_5fnextpow2',['ccrush_nextpow2',['../ccrush_8h.html#a8ec95fda222e6620688ccb377df2f0f8',1,'ccrush.h']]],
   ['ccrush_5fversion',['CCRUSH_VERSION',['../ccrush_8h.html#a9ccc55255287e791650930567cd10b10',1,'ccrush.h']]],

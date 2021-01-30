@@ -65,6 +65,11 @@ extern "C" {
 #define CCRUSH_VERSION_STR "2.0.0"
 
 /**
+ * Maximum size of the input and output buffers to be used by ccrush.
+ */
+#define CCRUSH_MAX_BUFFER_SIZE_KiB (1024 * 256)
+
+/**
  * Default chunksize to use for compression/decompression buffers.
  */
 #define CCRUSH_DEFAULT_CHUNKSIZE (1024 * 256)

@@ -82,6 +82,16 @@ static void ccrush_compress_buffersize_too_large()
     TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 1024 * 1024, 8, &out, &out_length));
 }
 
+static void ccrush_compress_file_buffersize_too_large()
+{
+    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_compress_file("test", "test2", 1024 * 1024, 6));
+}
+
+static void ccrush_decompress_file_buffersize_too_large()
+{
+    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_decompress_file("test", "test2", 1024 * 1024));
+}
+
 static void ccrush_decompress_invalid_args()
 {
     uint8_t* out = NULL;
@@ -467,6 +477,8 @@ TEST_LIST = {
     { "ccrush_compress_file_result_is_smaller_and_decompression_succeeds", ccrush_compress_file_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeeds", ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_decompress_wrong_data_fails", ccrush_decompress_wrong_data_fails }, //
+    { "ccrush_compress_file_buffersize_too_large", ccrush_compress_file_buffersize_too_large }, //
+    { "ccrush_decompress_file_buffersize_too_large", ccrush_decompress_file_buffersize_too_large }, //
     //
     // ----------------------------------------------------------------------------------------------------------
     //
