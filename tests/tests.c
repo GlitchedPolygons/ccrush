@@ -47,7 +47,7 @@ static volatile unsigned int tmpctr = 0;
 static void tmpfilepath(char output_path[256])
 {
 #ifdef _WIN32
-    snprintf(output_path, 256, "C:\\TEMP\\ccrush-%zu-%u-test.txt", time(NULL), tmpctr++);
+    snprintf(output_path, 256, "ccrush-%lld-%u-test.txt", time(NULL), tmpctr++);
 #else
     snprintf(output_path, 256, "/tmp/ccrush-%zu-%u-test.txt", time(NULL), tmpctr++);
 #endif
@@ -79,7 +79,7 @@ static void ccrush_compress_buffersize_too_large()
     uint8_t* out = NULL;
     size_t out_length = 0;
 
-    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 1024 * 1024 * 1024, 8, &out, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_compress((uint8_t*)"TEST STRING TO COMPRESS", 23 + 1, 1024 * 1024, 8, &out, &out_length));
 }
 
 static void ccrush_decompress_invalid_args()
@@ -98,7 +98,7 @@ static void ccrush_decompress_buffersize_too_large()
     uint8_t* out = NULL;
     size_t out_length = 0;
 
-    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 23 + 1, 1024 * 1024 * 1024, &out, &out_length));
+    TEST_CHECK(CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE == ccrush_decompress((uint8_t*)"TEST DATA TO DECOMPRESS", 23 + 1, 1024 * 1024, &out, &out_length));
 }
 
 static const char text[] = "The nuclear weapons disposal facility on Shadow Moses Island in Alaska's Fox Archipelago was attacked and captured by Next Generation Special Forces being lead by members of FOX-HOUND.\n"
@@ -149,15 +149,54 @@ static void ccrush_compress_file_result_is_smaller_and_decompression_succeeds()
     input_file = NULL;
 
     TEST_CHECK(ccrush_compress_file(input_file_path, output_file_path, 256, 8) == 0);
-    //  TODO:  TEST_CHECK(compressed_text_length < text_length);
+
+    FILE* f1 = fopen(input_file_path, "r");
+    FILE* f2 = fopen(output_file_path, "r");
+
+    TEST_ASSERT(f1 != NULL);
+    TEST_ASSERT(f2 != NULL);
+
+    fseek(f1, 0, SEEK_END);
+    fseek(f2, 0, SEEK_END);
+
+    const long s1 = ftell(f1);
+    const long s2 = ftell(f2);
+
+    TEST_CHECK(s2 < s1);
 
     TEST_CHECK(0 == ccrush_decompress_file(output_file_path, output2_file_path, 256));
-    // TEST_CHECK(0 == strncmp(text, decompressed_text, text_length));
-    // TEST_CHECK(text_length == decompressed_text_length);
+
+    FILE* f3 = fopen(output2_file_path, "r");
+    TEST_CHECK(f3 != NULL);
+
+    fseek(f3, 0, SEEK_END);
+    TEST_CHECK(ftell(f3) == s1);
+
+    fseek(f1, 0, SEEK_SET);
+    fseek(f2, 0, SEEK_SET);
+    fseek(f3, 0, SEEK_SET);
+
+    unsigned long c1 = 0;
+    while (!feof(f1) && !ferror(f1))
+        c1 ^= fgetc(f1);
+
+    unsigned long c2 = 0;
+    while (!feof(f2) && !ferror(f2))
+        c2 ^= fgetc(f2);
+
+    unsigned long c3 = 0;
+    while (!feof(f3) && !ferror(f3))
+        c3 ^= fgetc(f3);
+
+    TEST_CHECK(c1 == c3);
+    TEST_CHECK(c1 != c2);
+
+    fclose(f1);
+    fclose(f2);
+    fclose(f3);
 }
 
-// TODO test large files support!
-static void ccrush_compress_bigfile_result_is_smaller_and_decompression_succeeds()
+static void ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeeds()
 {
     char input_file_path[256] = { 0x00 };
     char output_file_path[256] = { 0x00 };
@@ -178,12 +217,52 @@ static void ccrush_compress_bigfile_result_is_smaller_and_decompression_succeeds
     fclose(input_file);
     input_file = NULL;
 
-    TEST_CHECK(ccrush_compress_file(input_file_path, output_file_path, 256, 8) == 0);
-    //  TODO:  TEST_CHECK(compressed_text_length < text_length);
+    TEST_CHECK(ccrush_compress_file(input_file_path, output_file_path, 1024, 2) == 0);
 
-    TEST_CHECK(0 == ccrush_decompress_file(output_file_path, output2_file_path, 256));
-    // TEST_CHECK(0 == strncmp(text, decompressed_text, text_length));
-    // TEST_CHECK(text_length == decompressed_text_length);
+    FILE* f1 = fopen(input_file_path, "r");
+    FILE* f2 = fopen(output_file_path, "r");
+
+    TEST_ASSERT(f1 != NULL);
+    TEST_ASSERT(f2 != NULL);
+
+    fseek(f1, 0, SEEK_END);
+    fseek(f2, 0, SEEK_END);
+
+    const long s1 = ftell(f1);
+    const long s2 = ftell(f2);
+
+    TEST_CHECK(s2 < s1);
+
+    TEST_CHECK(0 == ccrush_decompress_file(output_file_path, output2_file_path, 1024));
+
+    FILE* f3 = fopen(output2_file_path, "r");
+    TEST_CHECK(f3 != NULL);
+
+    fseek(f3, 0, SEEK_END);
+    TEST_CHECK(ftell(f3) == s1);
+
+    fseek(f1, 0, SEEK_SET);
+    fseek(f2, 0, SEEK_SET);
+    fseek(f3, 0, SEEK_SET);
+
+    unsigned long c1 = 0;
+    while (!feof(f1) && !ferror(f1))
+        c1 ^= fgetc(f1);
+
+    unsigned long c2 = 0;
+    while (!feof(f2) && !ferror(f2))
+        c2 ^= fgetc(f2);
+
+    unsigned long c3 = 0;
+    while (!feof(f3) && !ferror(f3))
+        c3 ^= fgetc(f3);
+
+    TEST_CHECK(c1 == c3);
+    TEST_CHECK(c1 != c2);
+
+    fclose(f1);
+    fclose(f2);
+    fclose(f3);
 }
 
 static void ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds()
@@ -386,6 +465,7 @@ TEST_LIST = {
     { "ccrush_compress_string_result_is_smaller_and_decompression_succeeds", ccrush_compress_string_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds", ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_compress_file_result_is_smaller_and_decompression_succeeds", ccrush_compress_file_result_is_smaller_and_decompression_succeeds }, //
+    { "ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeeds", ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeeds }, //
     { "ccrush_decompress_wrong_data_fails", ccrush_decompress_wrong_data_fails }, //
     //
     // ----------------------------------------------------------------------------------------------------------

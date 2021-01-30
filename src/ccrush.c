@@ -43,9 +43,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
-
-    if (buffer_size_b >= UINT32_MAX)
+    if (buffer_size_kib >= UINT16_MAX)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -56,6 +54,7 @@ int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
     const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
 
     uint8_t* zoutbuf = malloc(buffersize);
@@ -152,9 +151,7 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
-
-    if (buffer_size_b >= UINT32_MAX)
+    if (buffer_size_kib >= UINT16_MAX)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -165,13 +162,14 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
     const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
 
     uint8_t* input_buffer = malloc(buffersize);
     uint8_t* output_buffer = malloc(buffersize);
 
-    FILE* input_file = fopen(input_file_path, "r");
-    FILE* output_file = fopen(output_file_path, "w");
+    FILE* input_file = fopen(input_file_path, "rb");
+    FILE* output_file = fopen(output_file_path, "wb");
 
     if (input_file == NULL || output_file == NULL)
     {
@@ -279,9 +277,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
-
-    if (buffer_size_b >= UINT32_MAX)
+    if (buffer_size_kib >= UINT16_MAX)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -292,6 +288,7 @@ int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint3
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
     const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
 
     uint8_t* zoutbuf = malloc(buffersize);
@@ -387,9 +384,7 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
         return CCRUSH_ERROR_INVALID_ARGS;
     }
 
-    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
-
-    if (buffer_size_b >= UINT32_MAX)
+    if (buffer_size_kib >= UINT16_MAX)
     {
         return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
     }
@@ -400,13 +395,14 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
     memset(&stream, 0x00, sizeof(stream));
 
     assert(sizeof(uint8_t) == 1);
+    const size_t buffer_size_b = ((size_t)buffer_size_kib) * 1024;
     const unsigned int buffersize = (unsigned int)(buffer_size_b ? buffer_size_b : CCRUSH_DEFAULT_CHUNKSIZE);
 
     uint8_t* input_buffer = malloc(buffersize);
     uint8_t* output_buffer = malloc(buffersize);
 
-    FILE* input_file = fopen(input_file_path, "r");
-    FILE* output_file = fopen(output_file_path, "w");
+    FILE* input_file = fopen(input_file_path, "rb");
+    FILE* output_file = fopen(output_file_path, "wb");
 
     if (input_file == NULL || output_file == NULL)
     {
