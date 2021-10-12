@@ -44,15 +44,6 @@ static void null_test_success()
 
 static volatile unsigned int tmpctr = 0;
 
-static void tmpfilepath(char output_path[256])
-{
-#ifdef _WIN32
-    snprintf(output_path, 256, "ccrush-%lld-%u-test.txt", time(NULL), tmpctr++);
-#else
-    snprintf(output_path, 256, "/tmp/ccrush-%zu-%u-test.txt", time(NULL), tmpctr++);
-#endif
-}
-
 static void ccrush_compress_invalid_args()
 {
     uint8_t* out = NULL;
@@ -143,9 +134,9 @@ static void ccrush_compress_file_result_is_smaller_and_decompression_succeeds()
     char output_file_path[256] = { 0x00 };
     char output2_file_path[256] = { 0x00 };
 
-    tmpfilepath(input_file_path);
-    tmpfilepath(output_file_path);
-    tmpfilepath(output2_file_path);
+    sprintf(input_file_path, "%s", tmpnam(NULL));
+    sprintf(output_file_path, "%s", tmpnam(NULL));
+    sprintf(output2_file_path, "%s", tmpnam(NULL));
 
     FILE* input_file = fopen(input_file_path, "a");
     TEST_ASSERT(input_file != NULL);
@@ -204,6 +195,10 @@ static void ccrush_compress_file_result_is_smaller_and_decompression_succeeds()
     fclose(f1);
     fclose(f2);
     fclose(f3);
+
+    remove(input_file_path);
+    remove(output_file_path);
+    remove(output2_file_path);
 }
 
 static void ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeeds()
@@ -212,9 +207,9 @@ static void ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeed
     char output_file_path[256] = { 0x00 };
     char output2_file_path[256] = { 0x00 };
 
-    tmpfilepath(input_file_path);
-    tmpfilepath(output_file_path);
-    tmpfilepath(output2_file_path);
+    sprintf(input_file_path, "%s", tmpnam(NULL));
+    sprintf(output_file_path, "%s", tmpnam(NULL));
+    sprintf(output2_file_path, "%s", tmpnam(NULL));
 
     FILE* input_file = fopen(input_file_path, "a");
     TEST_ASSERT(input_file != NULL);
@@ -273,6 +268,10 @@ static void ccrush_compress_BIG_file_result_is_smaller_and_decompression_succeed
     fclose(f1);
     fclose(f2);
     fclose(f3);
+
+    remove(input_file_path);
+    remove(output_file_path);
+    remove(output2_file_path);
 }
 
 static void ccrush_compress_bytes_result_is_smaller_and_decompression_succeeds()

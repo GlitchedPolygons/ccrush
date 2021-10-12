@@ -33,6 +33,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _WIN32
 #include <sys/types.h>
 #include <unistd.h>
+#else
+#define WIN32_NO_STATUS
+#include <windows.h>
+#undef WIN32_NO_STATUS
 #endif
 
 #include <ctype.h>
@@ -41,6 +45,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include <zlib.h>
 #include <chillbuff.h>
+
+static inline FILE* ccrush_fopen(const char* filename, const char* mode)
+{
+#ifdef _WIN32
+    wchar_t wname[CCRUSH_MAX_WIN_FILEPATH_LENGTH] = { 0x00 };
+    wchar_t wmode[256] = { 0x00 };
+
+    wsprintfW(wname, L"\\\\?\\");
+
+    MultiByteToWideChar(CP_UTF8, 0, filename, -1, wname + 4, CCRUSH_MAX_WIN_FILEPATH_LENGTH - 4);
+    MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, 256);
+
+    for (size_t i = 0; i < CCRUSH_MAX_WIN_FILEPATH_LENGTH; ++i)
+    {
+        if (wname[i] == L'/')
+            wname[i] = L'\\';
+    }
+
+    return _wfopen(wname, wmode);
+#else // Hope that the fopen() implementation on whatever platform you're on accepts UTF-8 encoded strings. For most *nix environments, this holds true :)
+    return fopen(filename, mode);
+#endif
+}
 
 int ccrush_compress(const uint8_t* data, const size_t data_length, const uint32_t buffer_size_kib, const int level, uint8_t** out, size_t* out_length)
 {
@@ -183,8 +210,8 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
     uint8_t* input_buffer = malloc(buffersize);
     uint8_t* output_buffer = malloc(buffersize);
 
-    FILE* input_file = fopen(input_file_path, "rb");
-    FILE* output_file = fopen(output_file_path, "wb");
+    FILE* input_file = ccrush_fopen(input_file_path, "rb");
+    FILE* output_file = ccrush_fopen(output_file_path, "wb");
 
     if (input_file == NULL || output_file == NULL)
     {
@@ -419,8 +446,8 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
     uint8_t* input_buffer = malloc(buffersize);
     uint8_t* output_buffer = malloc(buffersize);
 
-    FILE* input_file = fopen(input_file_path, "rb");
-    FILE* output_file = fopen(output_file_path, "wb");
+    FILE* input_file = ccrush_fopen(input_file_path, "rb");
+    FILE* output_file = ccrush_fopen(output_file_path, "wb");
 
     if (input_file == NULL || output_file == NULL)
     {

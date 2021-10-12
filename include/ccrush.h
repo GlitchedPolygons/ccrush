@@ -57,22 +57,26 @@ extern "C" {
 /**
  * Ccrush version number.
  */
-#define CCRUSH_VERSION 200
+#define CCRUSH_VERSION 201
 
 /**
  * Ccrush version number (as a human-readable string).
  */
-#define CCRUSH_VERSION_STR "2.0.0"
+#define CCRUSH_VERSION_STR "2.0.1"
 
+#ifndef CCRUSH_MAX_BUFFER_SIZE_KiB
 /**
  * Maximum size of the input and output buffers to be used by ccrush.
  */
 #define CCRUSH_MAX_BUFFER_SIZE_KiB (1024 * 256)
+#endif
 
+#ifndef CCRUSH_DEFAULT_CHUNKSIZE
 /**
  * Default chunksize to use for compression/decompression buffers.
  */
 #define CCRUSH_DEFAULT_CHUNKSIZE (1024 * 256)
+#endif
 
 /**
  * Error code for <c>NULL</c>, invalid, out-of-range or simply just wrong arguments.
@@ -104,6 +108,13 @@ extern "C" {
  */
 #define CCRUSH_MAX(x, y) (((x) > (y)) ? (x) : (y))
 
+#ifndef CCRUSH_MAX_WIN_FILEPATH_LENGTH
+/**
+ * Maximum file path length on NTFS.
+ */
+#define CCRUSH_MAX_WIN_FILEPATH_LENGTH (1024 * 32)
+#endif
+
 /**
  * Compresses an array of bytes using deflate.
  * @param data The data to compress.
@@ -118,8 +129,8 @@ CCRUSH_API int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t
 
 /**
  * Compresses a given file and writes it into the passed output file path.
- * @param input_file_path The file to compress.
- * @param output_file_path The output file path where the compressed file should be written to.
+ * @param input_file_path The file to compress. Must be UTF-8 encoded! Must be NUL-terminated!
+ * @param output_file_path The output file path where the compressed file should be written to. Must be UTF-8 encoded! Must be NUL-terminated!
  * @param buffer_size_kib The underlying buffer size to use (in KiB). Pass <c>0</c> to use the default value #CCRUSH_DEFAULT_CHUNKSIZE. Especially <c>inflate()</c> profits from a relatively large buffer a.k.a. "chunk" size. A 256KiB buffer works great :)
  * @param level The level of compression <c>[0-9]</c>. Lower means faster, higher level means better compression (but slower). Default is <c>6</c>. If you pass a value that is out of the allowed range of <c>[0-9]</c>, <c>6</c> will be used! <c>0</c> does not compress at all...
  * @return <c>0</c> on success; non-zero error codes if something fails.
@@ -139,8 +150,8 @@ CCRUSH_API int ccrush_decompress(const uint8_t* data, size_t data_length, uint32
 
 /**
  * Decompresses a given file and writes it into the passed output file path.
- * @param input_file_path The file to decompress.
- * @param output_file_path The output file path where the decompressed file should be written to.
+ * @param input_file_path The file to decompress. Must be UTF-8 encoded! Must be NUL-terminated!
+ * @param output_file_path The output file path where the decompressed file should be written to. Must be UTF-8 encoded! Must be NUL-terminated!
  * @param buffer_size_kib The underlying buffer size to use (in KiB). Pass <c>0</c> to use the default value #CCRUSH_DEFAULT_CHUNKSIZE. Especially <c>inflate()</c> profits from a relatively large buffer a.k.a. "chunk" size. A 256KiB buffer works great :)
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
