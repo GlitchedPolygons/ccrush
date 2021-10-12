@@ -1,7 +1,6 @@
 # CCRUSH
 ### _Say "C-Crush", "Sick rush", "Seek rush", "CRUSH!!!", or whatever you feel sounds best_
 
-[![Codacy](https://app.codacy.com/project/badge/Grade/f3cf79eea56742b7a5581faab5d3a0cf)](https://www.codacy.com/manual/GlitchedPolygons/ccrush?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=GlitchedPolygons/ccrush&amp;utm_campaign=Badge_Grade)
 [![Codecov](https://codecov.io/gh/GlitchedPolygons/ccrush/branch/master/graph/badge.svg)](https://codecov.io/gh/GlitchedPolygons/ccrush)
 [![CircleCI](https://circleci.com/gh/GlitchedPolygons/ccrush/tree/master.svg?style=shield)](https://circleci.com/gh/GlitchedPolygons/ccrush/tree/master)
 [![License Shield](https://img.shields.io/badge/license-BSD--2--clause-blueviolet)](https://github.com/GlitchedPolygons/ccrush/blob/master/LICENSE)
