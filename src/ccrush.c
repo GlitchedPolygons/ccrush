@@ -52,16 +52,8 @@ static inline FILE* ccrush_fopen(const char* filename, const char* mode)
     wchar_t wname[CCRUSH_MAX_WIN_FILEPATH_LENGTH] = { 0x00 };
     wchar_t wmode[256] = { 0x00 };
 
-    wsprintfW(wname, L"\\\\?\\");
-
-    MultiByteToWideChar(CP_UTF8, 0, filename, -1, wname + 4, CCRUSH_MAX_WIN_FILEPATH_LENGTH - 4);
+    MultiByteToWideChar(CP_UTF8, 0, filename, -1, wname, CCRUSH_MAX_WIN_FILEPATH_LENGTH);
     MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, 256);
-
-    for (size_t i = 0; i < CCRUSH_MAX_WIN_FILEPATH_LENGTH; ++i)
-    {
-        if (wname[i] == L'/')
-            wname[i] = L'\\';
-    }
 
     return _wfopen(wname, wmode);
 #else // Hope that the fopen() implementation on whatever platform you're on accepts UTF-8 encoded strings. For most *nix environments, this holds true :)
