@@ -3,6 +3,7 @@
 
 [![Codecov](https://codecov.io/gh/GlitchedPolygons/ccrush/branch/master/graph/badge.svg)](https://codecov.io/gh/GlitchedPolygons/ccrush)
 [![CircleCI](https://circleci.com/gh/GlitchedPolygons/ccrush/tree/master.svg?style=shield)](https://circleci.com/gh/GlitchedPolygons/ccrush/tree/master)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/l6d4kry0mf097k2q?svg=true)](https://ci.appveyor.com/project/GlitchedPolygons/ccrush)
 [![License Shield](https://img.shields.io/badge/license-BSD--2--clause-blueviolet)](https://github.com/GlitchedPolygons/ccrush/blob/master/LICENSE)
 [![API Docs](https://img.shields.io/badge/api-docs-informational.svg)](https://glitchedpolygons.github.io/ccrush/files.html)
 
