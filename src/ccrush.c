@@ -49,13 +49,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static inline FILE* ccrush_fopen(const char* filename, const char* mode)
 {
 #ifdef _WIN32
-    wchar_t wname[CCRUSH_MAX_WIN_FILEPATH_LENGTH] = { 0x00 };
-    wchar_t wmode[256] = { 0x00 };
+    wchar_t* wpath = malloc(CCRUSH_MAX_WIN_FILEPATH_LENGTH * sizeof(wchar_t));
+    if (wpath == NULL)
+    {
+        return NULL;
+    }
 
-    MultiByteToWideChar(CP_UTF8, 0, filename, -1, wname, CCRUSH_MAX_WIN_FILEPATH_LENGTH);
+    wchar_t wmode[256];
+
+    wpath[0] = 0x00;
+    wmode[0] = 0x00;
+
+    MultiByteToWideChar(CP_UTF8, 0, filename, -1, wpath, CCRUSH_MAX_WIN_FILEPATH_LENGTH);
     MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, 256);
 
-    return _wfopen(wname, wmode);
+    FILE* file = _wfopen(wpath, wmode);
+    free(wpath);
+    return file;
 #else // Hope that the fopen() implementation on whatever platform you're on accepts UTF-8 encoded strings. For most *nix environments, this holds true :)
     return fopen(filename, mode);
 #endif
