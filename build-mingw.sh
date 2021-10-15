@@ -38,7 +38,7 @@ rm -rf "$REPO"/out
 rm -rf "$REPO"/build-mingw
 mkdir -p "$REPO"/build-mingw/include && cd "$REPO"/build-mingw || exit
 
-cmake -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=On "-D${PROJECT_NAME}_BUILD_DLL=On" "-D${PROJECT_NAME}_PACKAGE=On" -DCMAKE_BUILD_TYPE=Release ..
+cmake -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=On -D${PROJECT_NAME}_SYSNAME="mingw-w64" "-D${PROJECT_NAME}_BUILD_DLL=On" "-D${PROJECT_NAME}_PACKAGE=On" -DCMAKE_BUILD_TYPE=Release ..
 
 mingw32-make.exe
 
