@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 set(${PROJECT_NAME}_MAJOR 2)
 set(${PROJECT_NAME}_MINOR 0)
-set(${PROJECT_NAME}_PATCH 3)
+set(${PROJECT_NAME}_PATCH 5)
 set(${PROJECT_NAME}_VERSION_STRING "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
 
 option(${PROJECT_NAME}_DLL "Use as a DLL." OFF)
@@ -58,6 +58,7 @@ if (NOT WIN32)
     add_compile_definitions("HAVE_UNISTD_H=1")
 else ()
     add_compile_definitions("_CRT_SECURE_NO_WARNINGS=1")
+    set(CMAKE_RELEASE_POSTFIX "${${PROJECT_NAME}_MAJOR}")
 endif ()
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
