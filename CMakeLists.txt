@@ -6,8 +6,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 set(${PROJECT_NAME}_MAJOR 2)
 set(${PROJECT_NAME}_MINOR 0)
-set(${PROJECT_NAME}_PATCH 3)
+set(${PROJECT_NAME}_PATCH 4)
 set(${PROJECT_NAME}_VERSION_STRING "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
+set(${PROJECT_NAME}_TARGET "${PROJECT_NAME}")
+
+if (WIN32)
+    set(${PROJECT_NAME}_TARGET "${PROJECT_NAME}${${PROJECT_NAME}_MAJOR}")
+endif()
 
 option(${PROJECT_NAME}_DLL "Use as a DLL." OFF)
 option(${PROJECT_NAME}_BUILD_DLL "Build as a DLL." OFF)
@@ -60,10 +65,10 @@ else ()
     add_compile_definitions("_CRT_SECURE_NO_WARNINGS=1")
 endif ()
 
-add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
+add_library(${${PROJECT_NAME}_TARGET} ${${PROJECT_NAME}_SRC_FILES})
 
 if (${${PROJECT_NAME}_BUILD_DLL} OR BUILD_SHARED_LIBS)
-    set_target_properties(${PROJECT_NAME}
+    set_target_properties(${${PROJECT_NAME}_TARGET}
             PROPERTIES
             VERSION ${${PROJECT_NAME}_VERSION_STRING}
             SOVERSION ${${PROJECT_NAME}_MAJOR}
@@ -76,7 +81,7 @@ if (${${PROJECT_NAME}_PACKAGE})
         set(${PROJECT_NAME}_SYSNAME ${CMAKE_SYSTEM_NAME})
     endif ()
     
-    set_target_properties(${PROJECT_NAME} PROPERTIES
+    set_target_properties(${${PROJECT_NAME}_TARGET} PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin"
@@ -90,19 +95,19 @@ if (${${PROJECT_NAME}_PACKAGE})
             RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin/release"
             )
 
-    add_custom_command(TARGET ${PROJECT_NAME}
+    add_custom_command(TARGET ${${PROJECT_NAME}_TARGET}
             POST_BUILD COMMAND ${CMAKE_COMMAND}
             -E copy ${CMAKE_CURRENT_LIST_DIR}/NOTICE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/NOTICE"
             )
 
-    add_custom_command(TARGET ${PROJECT_NAME}
+    add_custom_command(TARGET ${${PROJECT_NAME}_TARGET}
             POST_BUILD COMMAND ${CMAKE_COMMAND}
             -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/include "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/include"
             )
 
     string(TOLOWER "${PROJECT_NAME}-${${PROJECT_NAME}_VERSION_STRING}-${${PROJECT_NAME}_SYSNAME}-${CMAKE_HOST_SYSTEM_PROCESSOR}.tar.gz" ${PROJECT_NAME}_OUTPUT_ARCHIVE_FILENAME)
 
-    add_custom_command(TARGET ${PROJECT_NAME}
+    add_custom_command(TARGET ${${PROJECT_NAME}_TARGET}
             POST_BUILD COMMAND ${CMAKE_COMMAND}
             -E tar "czvf" ${${PROJECT_NAME}_OUTPUT_ARCHIVE_FILENAME} ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
             )
@@ -112,16 +117,16 @@ if (NOT TARGET chillbuff)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/chillbuff chillbuff)
 endif ()
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${${PROJECT_NAME}_TARGET}
         PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
         PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/zlib
         )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${${PROJECT_NAME}_TARGET}
         PRIVATE chillbuff
         )
 
-get_target_property(${PROJECT_NAME}_DEPS_TARGETS ${PROJECT_NAME} LINK_LIBRARIES)
+get_target_property(${PROJECT_NAME}_DEPS_TARGETS ${${PROJECT_NAME}_TARGET} LINK_LIBRARIES)
 
 if (${${PROJECT_NAME}_ENABLE_TESTS})
 
