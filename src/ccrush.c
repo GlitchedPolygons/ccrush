@@ -188,9 +188,9 @@ exit:
     return (r);
 }
 
-int ccrush_compress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib, int level)
+int ccrush_compress_file_raw(FILE* input_file, FILE* output_file, uint32_t buffer_size_kib, int level, int close_input_file, int close_output_file)
 {
-    if (!input_file_path || !output_file_path || input_file_path == output_file_path || strcmp(input_file_path, output_file_path) == 0)
+    if (!input_file || !output_file || input_file == output_file)
     {
         return CCRUSH_ERROR_INVALID_ARGS;
     }
@@ -211,15 +211,6 @@ int ccrush_compress_file(const char* input_file_path, const char* output_file_pa
 
     uint8_t* input_buffer = malloc(buffersize);
     uint8_t* output_buffer = malloc(buffersize);
-
-    FILE* input_file = ccrush_fopen(input_file_path, "rb");
-    FILE* output_file = ccrush_fopen(output_file_path, "wb");
-
-    if (input_file == NULL || output_file == NULL)
-    {
-        r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
-        goto exit;
-    }
 
     if (input_buffer == NULL || output_buffer == NULL)
     {
@@ -301,17 +292,50 @@ exit:
         free(output_buffer);
     }
 
-    if (input_file != NULL)
+    if (close_input_file)
     {
         fclose(input_file);
     }
 
-    if (output_file != NULL)
+    if (close_output_file)
     {
         fclose(output_file);
     }
 
     return (r);
+}
+
+int ccrush_compress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib, int level)
+{
+    if (!input_file_path || !output_file_path || input_file_path == output_file_path || strcmp(input_file_path, output_file_path) == 0)
+    {
+        return CCRUSH_ERROR_INVALID_ARGS;
+    }
+
+    if (buffer_size_kib > CCRUSH_MAX_BUFFER_SIZE_KiB)
+    {
+        return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
+    }
+
+    FILE* input_file = ccrush_fopen(input_file_path, "rb");
+    FILE* output_file = ccrush_fopen(output_file_path, "wb");
+
+    if (input_file == NULL || output_file == NULL)
+    {
+        if (input_file != NULL)
+        {
+            fclose(input_file);
+        }
+
+        if (output_file != NULL)
+        {
+            fclose(output_file);
+        }
+
+        return CCRUSH_ERROR_FILE_ACCESS_FAILED;
+    }
+
+    return ccrush_compress_file_raw(input_file, output_file, buffer_size_kib, level, 1, 1);
 }
 
 int ccrush_decompress(const uint8_t* data, const size_t data_length, const uint32_t buffer_size_kib, uint8_t** out, size_t* out_length)
@@ -424,9 +448,9 @@ exit:
     return (r);
 }
 
-int ccrush_decompress_file(const char* input_file_path, const char* output_file_path, const uint32_t buffer_size_kib)
+int ccrush_decompress_file_raw(FILE* input_file, FILE* output_file, uint32_t buffer_size_kib, int close_input_file, int close_output_file)
 {
-    if (!input_file_path || !output_file_path || input_file_path == output_file_path || strcmp(input_file_path, output_file_path) == 0)
+    if (!input_file || !output_file || input_file == output_file)
     {
         return CCRUSH_ERROR_INVALID_ARGS;
     }
@@ -447,15 +471,6 @@ int ccrush_decompress_file(const char* input_file_path, const char* output_file_
 
     uint8_t* input_buffer = malloc(buffersize);
     uint8_t* output_buffer = malloc(buffersize);
-
-    FILE* input_file = ccrush_fopen(input_file_path, "rb");
-    FILE* output_file = ccrush_fopen(output_file_path, "wb");
-
-    if (input_file == NULL || output_file == NULL)
-    {
-        r = CCRUSH_ERROR_FILE_ACCESS_FAILED;
-        goto exit;
-    }
 
     if (input_buffer == NULL || output_buffer == NULL)
     {
@@ -533,17 +548,50 @@ exit:
         free(output_buffer);
     }
 
-    if (input_file != NULL)
+    if (close_input_file)
     {
         fclose(input_file);
     }
 
-    if (output_file != NULL)
+    if (close_output_file)
     {
         fclose(output_file);
     }
 
     return (r);
+}
+
+int ccrush_decompress_file(const char* input_file_path, const char* output_file_path, const uint32_t buffer_size_kib)
+{
+    if (!input_file_path || !output_file_path || input_file_path == output_file_path || strcmp(input_file_path, output_file_path) == 0)
+    {
+        return CCRUSH_ERROR_INVALID_ARGS;
+    }
+
+    if (buffer_size_kib > CCRUSH_MAX_BUFFER_SIZE_KiB)
+    {
+        return CCRUSH_ERROR_BUFFERSIZE_TOO_LARGE;
+    }
+
+    FILE* input_file = ccrush_fopen(input_file_path, "rb");
+    FILE* output_file = ccrush_fopen(output_file_path, "wb");
+
+    if (input_file == NULL || output_file == NULL)
+    {
+        if (input_file != NULL)
+        {
+            fclose(input_file);
+        }
+
+        if (output_file != NULL)
+        {
+            fclose(output_file);
+        }
+
+        return CCRUSH_ERROR_FILE_ACCESS_FAILED;
+    }
+
+    return ccrush_decompress_file_raw(input_file, output_file, buffer_size_kib, 1, 1);
 }
 
 void ccrush_free(void* mem)

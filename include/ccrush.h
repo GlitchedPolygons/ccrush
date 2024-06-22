@@ -51,18 +51,19 @@ extern "C" {
 #define CCRUSH_API
 #endif
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 
 /**
  * Ccrush version number.
  */
-#define CCRUSH_VERSION 206
+#define CCRUSH_VERSION 210
 
 /**
  * Ccrush version number (as a human-readable string).
  */
-#define CCRUSH_VERSION_STR "2.0.6"
+#define CCRUSH_VERSION_STR "2.1.0"
 
 #ifndef CCRUSH_MAX_BUFFER_SIZE_KiB
 /**
@@ -138,6 +139,18 @@ CCRUSH_API int ccrush_compress(const uint8_t* data, size_t data_length, uint32_t
 CCRUSH_API int ccrush_compress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib, int level);
 
 /**
+ * Compresses a given file and writes it into the passed output file.
+ * @param input_file The file to compress. Standard IO file handle (FILE*)
+ * @param output_file The output file handle into which to write the compressed file. Standard IO file handle (FILE*)
+ * @param buffer_size_kib The underlying buffer size to use (in KiB). Pass <c>0</c> to use the default value #CCRUSH_DEFAULT_CHUNKSIZE. Especially <c>inflate()</c> profits from a relatively large buffer a.k.a. "chunk" size. A 256KiB buffer works great :)
+ * @param level The level of compression <c>[0-9]</c>. Lower means faster, higher level means better compression (but slower). Default is <c>6</c>. If you pass a value that is out of the allowed range of <c>[0-9]</c>, <c>6</c> will be used! <c>0</c> does not compress at all...
+ * @param close_input_file Should the input file handle be <c>fclose</c>'d after usage? Pass <c>0</c> for "false" and anything else for "true".
+ * @param close_output_file Should the output file handle be <c>fclose</c>'d after usage? Pass <c>0</c> for "false" and anything else for "true".
+ * @return
+ */
+CCRUSH_API int ccrush_compress_file_raw(FILE* input_file, FILE* output_file, uint32_t buffer_size_kib, int level, int close_input_file, int close_output_file);
+
+/**
  * Decompresses a given set of deflated data using inflate.
  * @param data The compressed bytes to decompress.
  * @param data_length Length of the \p data array.
@@ -156,6 +169,17 @@ CCRUSH_API int ccrush_decompress(const uint8_t* data, size_t data_length, uint32
  * @return <c>0</c> on success; non-zero error codes if something fails.
  */
 CCRUSH_API int ccrush_decompress_file(const char* input_file_path, const char* output_file_path, uint32_t buffer_size_kib);
+
+/**
+ * Decompresses a given file and writes it into the passed output file.
+ * @param input_file The file to decompress. Standard IO file handle (FILE*)
+ * @param output_file The output file handle into which to write the decompressed file. Standard IO file handle (FILE*)
+ * @param buffer_size_kib The underlying buffer size to use (in KiB). Pass <c>0</c> to use the default value #CCRUSH_DEFAULT_CHUNKSIZE. Especially <c>inflate()</c> profits from a relatively large buffer a.k.a. "chunk" size. A 256KiB buffer works great :)
+ * @param close_input_file Should the input file handle be <c>fclose</c>'d after usage? Pass <c>0</c> for "false" and anything else for "true".
+ * @param close_output_file Should the output file handle be <c>fclose</c>'d after usage? Pass <c>0</c> for "false" and anything else for "true".
+ * @return
+ */
+CCRUSH_API int ccrush_decompress_file_raw(FILE* input_file, FILE* output_file, uint32_t buffer_size_kib, int close_input_file, int close_output_file);
 
 /**
  * Wrapper around <c>free()</c> (mostly useful for C# interop).
