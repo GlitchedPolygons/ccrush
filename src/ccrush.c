@@ -437,6 +437,12 @@ exit:
 
     inflateEnd(&stream);
 
+    if (zinbuf != NULL)
+    {
+        memset(zinbuf, 0x00, buffersize);
+        free(zinbuf);
+    }
+
     if (zoutbuf != NULL)
     {
         memset(zoutbuf, 0x00, buffersize);

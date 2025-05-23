@@ -58,12 +58,12 @@ extern "C" {
 /**
  * Ccrush version number.
  */
-#define CCRUSH_VERSION 210
+#define CCRUSH_VERSION 211
 
 /**
  * Ccrush version number (as a human-readable string).
  */
-#define CCRUSH_VERSION_STR "2.1.0"
+#define CCRUSH_VERSION_STR "2.1.1"
 
 #ifndef CCRUSH_MAX_BUFFER_SIZE_KiB
 /**
