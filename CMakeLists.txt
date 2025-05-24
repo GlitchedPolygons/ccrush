@@ -5,8 +5,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 set(${PROJECT_NAME}_MAJOR 2)
-set(${PROJECT_NAME}_MINOR 1)
-set(${PROJECT_NAME}_PATCH 1)
+set(${PROJECT_NAME}_MINOR 2)
+set(${PROJECT_NAME}_PATCH 0)
 set(${PROJECT_NAME}_VERSION_STRING "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
 
 option(${PROJECT_NAME}_DLL "Use as a DLL." OFF)
@@ -63,6 +63,8 @@ endif ()
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
 
+add_executable(${PROJECT_NAME}_cli ${CMAKE_CURRENT_LIST_DIR}/src/main.c ${${PROJECT_NAME}_SRC_FILES})
+
 if (${${PROJECT_NAME}_BUILD_DLL} OR BUILD_SHARED_LIBS)
     set_target_properties(${PROJECT_NAME}
             PROPERTIES
@@ -118,11 +120,29 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/zlib
         )
 
+target_include_directories(${PROJECT_NAME}_cli
+        PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/lib/zlib
+)
+
 target_link_libraries(${PROJECT_NAME}
         PRIVATE chillbuff
         )
 
+target_link_libraries(${PROJECT_NAME}_cli
+        PRIVATE chillbuff
+)
+
 get_target_property(${PROJECT_NAME}_DEPS_TARGETS ${PROJECT_NAME} LINK_LIBRARIES)
+
+set_target_properties(${PROJECT_NAME}_cli PROPERTIES
+        OUTPUT_NAME "${PROJECT_NAME}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin/debug"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/bin/release"
+)
+
+add_dependencies(${PROJECT_NAME}_cli ${PROJECT_NAME})
 
 if (${${PROJECT_NAME}_ENABLE_TESTS})
 
