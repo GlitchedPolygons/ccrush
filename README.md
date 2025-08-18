@@ -1,10 +1,19 @@
+> [!IMPORTANT]
+>
+> # **NOTICE:**
+>
+> ## Development of this project has been migrated to: https://codeberg.org/GlitchedPolygons/ccrush
+>
+> ## All pull requests and issues on GitHub will be ignored from the 16th of August, 2025 onwards.
+
 # CCRUSH
+
 ### _Say "C-Crush", "Sick rush", "Seek rush", "CRUSH!!!", or whatever you feel sounds best_
 
 [![Codecov](https://codecov.io/gh/GlitchedPolygons/ccrush/branch/master/graph/badge.svg)](https://codecov.io/gh/GlitchedPolygons/ccrush)
 [![CircleCI](https://circleci.com/gh/GlitchedPolygons/ccrush/tree/master.svg?style=shield)](https://circleci.com/gh/GlitchedPolygons/ccrush/tree/master)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/l6d4kry0mf097k2q?svg=true)](https://ci.appveyor.com/project/GlitchedPolygons/ccrush)
-[![License Shield](https://img.shields.io/badge/license-BSD--2--clause-blueviolet)](https://github.com/GlitchedPolygons/ccrush/blob/master/LICENSE)
+[![License Shield](https://img.shields.io/badge/license-BSD--2--clause-blueviolet)](https://codeberg.org/GlitchedPolygons/ccrush/src/branch/master/LICENSE)
 [![API Docs](https://img.shields.io/badge/api-docs-informational.svg)](https://glitchedpolygons.github.io/ccrush/files.html)
 
 ---
@@ -17,13 +26,13 @@ It's a wrapper around [Zlib](https://github.com/madler/zlib), which implements t
 algorithm as defined in the [RFC1951](https://tools.ietf.org/html/rfc1951) standard.
 
 ### How to clone
-`git clone --recursive https://github.com/GlitchedPolygons/ccrush.git`
+`git clone --recursive https://codeberg.org/GlitchedPolygons/ccrush.git`
 
 ### How to use
 Just add CCRUSH as a git submodule to your project (e.g. into some `lib/` or `deps/` folder inside your project's repo; `{repo_root}/lib/` is used here in the following example).
 
 ```
-git submodule add https://github.com/GlitchedPolygons/ccrush.git lib/ccrush
+git submodule add https://codeberg.org/GlitchedPolygons/ccrush.git lib/ccrush
 git submodule update --init --recursive
 ```
 
@@ -35,7 +44,7 @@ If you use [CMake](https://cmake.org) you can just `add_subdirectory(path_to_sub
 
 ### Building from sauce
 
-If you don't wanna grab the pre-built binaries from the [GitHub releases page](https://github.com/GlitchedPolygons/ccrush/releases) (and don't want to add ccrush as a subdirectory inside your CMake project), you can also do the following:
+If you don't wanna grab the pre-built binaries from the [GitHub releases page](https://codeberg.org/GlitchedPolygons/ccrush/releases) (and don't want to add ccrush as a subdirectory inside your CMake project), you can also do the following:
 
 #### Build shared library/DLL
 
